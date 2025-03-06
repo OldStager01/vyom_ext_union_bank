@@ -1,0 +1,22 @@
+[
+    "create_users.sql",
+    "create_employees.sql",
+    "create_branches.sql",
+    "create_accounts.sql",
+    "create_loans.sql",
+    "create_transactions.sql",
+    "create_video_queries.sql",
+    "create_service_tickets.sql",
+    "create_audit_logs.sql",
+    "create_feedbacks.sql",
+    "fk_users.sql",
+    "fk_employees.sql",
+    "fk_branches.sql",
+    "fk_accounts.sql",
+    "fk_loans.sql",
+    "fk_transactions.sql",
+    "fk_video_queries.sql",
+    "fk_service_tickets.sql",
+    "fk_audit_logs.sql",
+    "fk_feedbacks.sql"
+]
