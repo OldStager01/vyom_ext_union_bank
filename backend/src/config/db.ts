@@ -1,4 +1,4 @@
-import { Pool } from "pg";
+import { Pool, QueryResultRow } from "pg";
 import env from "./env";
 const pool = new Pool({
     connectionString: env.DB_URL,
@@ -8,30 +8,35 @@ const pool = new Pool({
 });
 
 // Perform a query on the database
-const query = async (text: string, params: any = []) => {
-    const client = await pool.connect();
+const query = async <T extends QueryResultRow>(
+    text: string,
+    params: any = []
+) => {
     try {
-        const result = await client.query(text, params);
-        return result;
+        console.log(text);
+        const result = await pool.query<T>(text, params);
+        return result.rows;
     } catch (error) {
-        console.error(error);
-    } finally {
-        client.release();
+        console.error("Database Query Error", error);
+        throw error;
     }
 };
 
 // Perform a transaction on the database
-const transaction = async (commands: { text: string; params: any[] }[]) => {
+const transaction = async <T extends QueryResultRow>(
+    commands: { text: string; params: any[] }[]
+) => {
     const client = await pool.connect();
     try {
         await client.query("BEGIN"); // Start the transaction
-
+        const results: T[][] = [];
         for (const command of commands) {
             const { text, params } = command;
-            await client.query(text, params);
+            const result = await client.query<T>(text, params);
+            results.push(result.rows);
         }
-
         await client.query("COMMIT"); // Commit the transaction
+        return results;
     } catch (error) {
         await client.query("ROLLBACK");
         console.error("Transaction failed. Rolled back.", error);

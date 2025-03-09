@@ -8,6 +8,9 @@ import logger from "./config/logger";
 import errorHandler from "./middlewares/error.middleware";
 import env from "./config/env";
 import { runMigrations } from "./db/init";
+
+import v1Router from "./routes/v1";
+import { uploadDynamicFiles } from "./middlewares/uploadMiddleware";
 // Load environment variables
 dotenv.config();
 
@@ -22,6 +25,13 @@ app.use(compression());
 
 // CORS Middleware
 app.use(cors({ origin: env.CORS_ORIGIN, credentials: true }));
+
+// Static Middleware
+app.use(express.static("public"));
+
+// JSON & URL-Encoded Middleware
+app.use(express.json({ limit: "50mb" }));
+app.use(express.urlencoded({ limit: "50mb", extended: true }));
 
 // Logging Middleware (Morgan + Winston)
 app.use(
@@ -39,9 +49,27 @@ app.get("/", (req: Request, res: Response) => {
     res.status(200).json({ message: "Hello, World!" });
 });
 
+app.use("/api/v1", v1Router);
+
+const upload = () => {
+    return uploadDynamicFiles({
+        fields: [
+            { name: "profilePic", maxCount: 1 }, // Single file
+            // { name: "documents", maxCount: 5 }, // Multiple files
+        ],
+        acceptedTypes: ["image/jpeg", "image/png", "application/pdf"], // Allowed file types
+        maxSize: 5 * 1024 * 1024, // Max 5MB
+        minSize: 10 * 1024, // Min 10KB
+        folder: "banking-app", // Custom folder for organization
+    });
+};
+
 app.get("/test", async (req: Request, res: Response) => {
     await runMigrations();
     res.status(200).json({ message: "Hello, World!" });
+});
+app.post("/test", upload(), async (req: Request, res: Response) => {
+    res.status(200).json({ message: "Hello, World!", data: req.files });
 });
 
 // 404 Handler
