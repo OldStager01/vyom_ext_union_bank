@@ -1,9 +1,13 @@
 import { Pool, QueryResultRow } from "pg";
 import env from "./env";
 const pool = new Pool({
-    connectionString: env.DB_URL,
+    connectionString:
+        env.NODE_ENV === "online_development" ? env.DB_URL_ONLINE : env.DB_URL,
     max: 20,
-    ssl: env.NODE_ENV === "production" ? { rejectUnauthorized: false } : false,
+    ssl:
+        env.NODE_ENV === "production" || env.NODE_ENV === "online_development"
+            ? { rejectUnauthorized: false }
+            : false,
     connectionTimeoutMillis: 2000,
 });
 

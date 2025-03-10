@@ -20,7 +20,7 @@ const sendOtp = async (phoneNumber: string) => {
     try {
         phoneNumberSchema.parse(phoneNumber);
         let otp;
-        if (env.NODE_ENV === "development") {
+        if (env.NODE_ENV.toString().includes("development")) {
             otp = "123456";
         } else {
             otp = generateRandomOTP();
