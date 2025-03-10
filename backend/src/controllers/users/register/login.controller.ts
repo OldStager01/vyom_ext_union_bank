@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { sendOtp, verifyOtp } from "../../../services/otp.service";
 import { ApiError } from "../../../utils/ApiError";
 import { ApiResponse } from "../../../utils/ApiResponse";
-import { createUser, getUsers } from "../../../db/models/users";
+import { createUser, getUsers, updateUser } from "../../../db/models/users";
 import { v4 as uuid } from "uuid";
 import {
     UserSchemaForCreationType,
@@ -20,32 +20,12 @@ export const phoneControllerSend = async (req: Request, res: Response) => {
         return;
     }
     try {
-        // Send the OTP
         await sendOtp(mobile_number);
 
-        // Check if the user exits
-        const user = await getUsers({
-            where: [
-                {
-                    column: "mobile_number",
-                    operator: "=",
-                    value: mobile_number,
-                },
-            ],
+        res.status(200).json({
+            message: "OTP sent. Proceed to login",
+            next_step: "login",
         });
-        if (user.length > 0) {
-            res.status(400).json({
-                message: "OTP sent. Proceed to login",
-                next_step: "login",
-            });
-            return;
-        } else {
-            res.status(400).json({
-                message: "OTP sent. Proceed to login",
-                next_step: "register",
-            });
-            return;
-        }
     } catch (error) {
         res.status(500).json({ message: "Failed to send OTP" });
         return;
@@ -98,17 +78,34 @@ export async function phoneControllerVerify(req: Request, res: Response) {
         const accessToken = generateAccessToken(authUser.id);
         const refreshToken = generateRefreshToken(authUser.id);
 
+        // Update refresh token in database
+        await updateUser<UserType>(
+            {
+                refresh_token: refreshToken,
+            },
+            {
+                where: [
+                    {
+                        column: "id",
+                        operator: "=",
+                        value: authUser.id,
+                    },
+                ],
+            }
+        );
+
+        // Send new tokens in response headers
+        res.setHeader("x-access-token", accessToken);
+        res.setHeader("x-refresh-token", refreshToken);
+
         res.json(
             new ApiResponse(200, {
                 message: "Phone Verified",
                 id: authUser.id,
                 mobile_number: authUser.mobile_number,
                 registration_status: authUser.registration_status,
-                access_token: accessToken,
-                refresh_token: refreshToken,
             })
         );
-
         return;
     } catch (error) {
         console.error(error);
