@@ -41,22 +41,7 @@ export async function verifyPan(
                 "Name or date of birth does not match with PAN records"
             );
         }
-        const user = await getRecords(tables.users, {
-            where: [
-                {
-                    column: "id",
-                    operator: "=",
-                    value: id,
-                },
-            ],
-        });
-        if (user.length === 0) {
-            throw new InternalServerError("User not found");
-        }
 
-        if (user[0]?.registration_status !== "pan") {
-            throw new ConflictError("Choose a valid method!");
-        }
         await updateRecord<UserType>(
             tables.users,
             {

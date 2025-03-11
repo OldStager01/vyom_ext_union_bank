@@ -28,26 +28,6 @@ export default async function verifyAadharOtp(
             throw new ValidationError("Invalid OTP");
         }
 
-        const user: Partial<UserType[]> = (await getRecords(tables.users, {
-            where: [
-                {
-                    column: "id",
-                    operator: "=",
-                    value: id,
-                },
-            ],
-        })) as Partial<UserType[]>;
-        if (user.length === 0) {
-            throw new ForbiddenError("User not found");
-        }
-
-        if (
-            user[0]?.registration_status &&
-            user[0]?.registration_status !== "aadhar"
-        ) {
-            throw new ValidationError("Choose a valid step!");
-        }
-
         const userUpdateObject: Partial<UserType> = {};
         // Mask the aadhar number
         userUpdateObject.aadhar_number = aadhar_number
@@ -77,8 +57,7 @@ export default async function verifyAadharOtp(
         });
 
         // Update the address
-        const addressResponse: Partial<UserAddressType> =
-            response.split_address;
+        const addressResponse = response.split_address;
         const userAddressObject: Partial<UserAddressType> = {
             address_type: "permanent",
         };
@@ -86,8 +65,8 @@ export default async function verifyAadharOtp(
         userAddressObject.user_id = id;
         userAddressObject.country = addressResponse.country;
         userAddressObject.state = addressResponse.state;
-        userAddressObject.district = addressResponse.district;
-        userAddressObject.city = addressResponse.city;
+        userAddressObject.district = addressResponse.dist;
+        userAddressObject.city = addressResponse.vtc;
         userAddressObject.po = addressResponse.po;
         userAddressObject.pincode = addressResponse.pincode;
         userAddressObject.street = addressResponse.street;

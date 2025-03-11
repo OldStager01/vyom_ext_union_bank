@@ -1,8 +1,7 @@
-import { getRecords, updateRecord } from "../../../db/models/records";
+import { updateRecord } from "../../../db/models/records";
 import { tables } from "../../../db/tables";
 import { UserType } from "../../../types/tables/user.type";
 import { ValidationError } from "../../../utils/errors";
-import { getUser } from "../getUser.service";
 
 const EMBEDDING_LENGTH = 128;
 
@@ -15,15 +14,6 @@ export async function registerFace(id: string, facial_embedding: string) {
             throw new ValidationError(
                 "Facial Embedding should be of length 128"
             );
-        }
-
-        // Verify User
-        const user = await getUser(id);
-        if (user.length === 0) {
-            throw new ValidationError("User not found");
-        }
-        if (user[0]?.registration_status !== "face") {
-            throw new ValidationError("Choose a valid method");
         }
 
         // Update User

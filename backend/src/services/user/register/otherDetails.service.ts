@@ -1,8 +1,8 @@
-import { getRecords, updateRecord } from "../../../db/models/records";
+import { updateRecord } from "../../../db/models/records";
 import { tables } from "../../../db/tables";
 import { UserSchema } from "../../../schemas/user.schema";
 import { MaritalStatusType, UserType } from "../../../types/tables/user.type";
-import { ConflictError, ValidationError } from "../../../utils/errors";
+import { ValidationError } from "../../../utils/errors";
 
 export async function addOtherDetails(
     id: string,
@@ -19,26 +19,6 @@ export async function addOtherDetails(
         });
         if (!result.success) {
             throw new ValidationError(result.error.message);
-        }
-
-        // Check if user exists
-        const user = await getRecords<UserType>(tables.users, {
-            where: [
-                {
-                    column: "id",
-                    operator: "=",
-                    value: id,
-                },
-            ],
-        });
-
-        if (user.length === 0) {
-            throw new ValidationError("User not found");
-        }
-        console.log(user);
-
-        if (user[0]?.registration_status !== "other") {
-            throw new ConflictError("Choose a valid method");
         }
 
         // Update other details

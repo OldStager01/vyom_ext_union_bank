@@ -12,6 +12,7 @@ import { runMigrations } from "./db/init";
 import v1Router from "./routes/v1";
 import { uploadDynamicFiles } from "./middlewares/uploadMiddleware";
 import { ApiResponse } from "./utils/ApiResponse";
+import { NotFoundError } from "./utils/errors";
 // Load environment variables
 dotenv.config();
 
@@ -76,7 +77,7 @@ app.post("/test", upload(), async (req: Request, res: Response) => {
 
 // 404 Handler
 app.use((req: Request, res: Response, next: NextFunction) => {
-    res.status(404).json({ message: "Not Found" });
+    next(new NotFoundError("Route not found"));
 });
 
 // Global Error Handler
