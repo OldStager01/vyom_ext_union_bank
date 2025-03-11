@@ -1,6 +1,11 @@
-import { createRecords } from "./createRecords";
-import { deleteRecords } from "./deleteRecords";
-import { findRecords } from "./findRecords";
-import { updateRecords } from "./updateRecords";
+import { createRecordsQuery } from "./createRecords";
+import { deleteRecordsQuery } from "./deleteRecords";
+import { findRecordsQuery } from "./findRecords";
+import { updateRecordsQuery } from "./updateRecords";
 
-export { createRecords, deleteRecords, findRecords, updateRecords };
+export {
+    createRecordsQuery,
+    deleteRecordsQuery,
+    findRecordsQuery,
+    updateRecordsQuery,
+};

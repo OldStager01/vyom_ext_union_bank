@@ -6,6 +6,7 @@ const UserAddressSchema = z.object({
     address_type: z.enum(["permanent", "temporary"]),
     country: z.string().min(1).max(100).nonempty(),
     state: z.string().min(1).max(100).nonempty(),
+    po: z.string().min(0).max(100).optional(),
     district: z.string().min(0).max(100).optional(),
     city: z.string().min(0).max(100).optional(),
     pincode: z.string().min(6).max(10).nonempty(),

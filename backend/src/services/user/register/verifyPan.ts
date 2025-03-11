@@ -1,4 +1,5 @@
-import { getUsers, updateUser } from "../../../db/models/users";
+import { getRecords, updateRecord } from "../../../db/models/records";
+import { tables } from "../../../db/tables";
 import { PanVerificationType } from "../../../types/panVerification.type";
 import { UserType } from "../../../types/tables/user.type";
 import {
@@ -40,7 +41,7 @@ export async function verifyPan(
                 "Name or date of birth does not match with PAN records"
             );
         }
-        const user = await getUsers({
+        const user = await getRecords(tables.users, {
             where: [
                 {
                     column: "id",
@@ -56,12 +57,14 @@ export async function verifyPan(
         if (user[0]?.registration_status !== "pan") {
             throw new ConflictError("Choose a valid method!");
         }
-        await updateUser<UserType>(
+        await updateRecord<UserType>(
+            tables.users,
             {
                 pan_number,
                 name,
                 dob: new Date(dob),
                 registration_status: "aadhar",
+                updated_at: new Date(),
             },
             {
                 where: [

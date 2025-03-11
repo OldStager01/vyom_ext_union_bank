@@ -1,11 +1,13 @@
 import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import env from "../config/env";
-import { getUsers, updateUser } from "../db/models/users";
+import { getRecords, updateRecord } from "../db/models/records";
 import { generateAccessToken, generateRefreshToken } from "../utils/jwtUtils";
 import { AuthRequest } from "../types/authRequest.type";
 import { ForbiddenError, UnauthorizedError } from "../utils/errors";
 import { ApiResponse } from "../utils/ApiResponse";
+import { UserType } from "../types/tables/user.type";
+import { tables } from "../db/tables";
 
 // Refresh Token API
 export const refreshToken = async (
@@ -35,7 +37,7 @@ export const refreshToken = async (
         const userId = (decoded as { id: string }).id;
 
         // Fetch user by decoded user ID
-        const users = await getUsers({
+        const users = await getRecords<UserType>(tables.users, {
             where: [{ column: "id", operator: "=", value: userId }],
         });
 
@@ -47,9 +49,10 @@ export const refreshToken = async (
 
         const user = users[0];
         // Security: If refresh token does not match, logout user
-        if (refreshToken !== user.refresh_token) {
-            await updateUser(
-                { refresh_token: null },
+        if (refreshToken !== user?.refresh_token) {
+            await updateRecord(
+                tables.users,
+                { refresh_token: null, updated_at: new Date() },
                 { where: [{ column: "id", operator: "=", value: userId }] }
             );
             throw new ForbiddenError(
@@ -62,8 +65,9 @@ export const refreshToken = async (
         const newRefreshToken = generateRefreshToken(userId);
 
         // Update refresh token in DB (Invalidate Old Token)
-        await updateUser(
-            { refresh_token: newRefreshToken },
+        await updateRecord(
+            tables.users,
+            { refresh_token: newRefreshToken, updated_at: new Date() },
             { where: [{ column: "id", operator: "=", value: userId }] }
         );
 
@@ -94,8 +98,9 @@ export const logout = async (
         }
 
         // Remove refresh token from the database
-        await updateUser(
-            { refresh_token: null },
+        await updateRecord(
+            tables.users,
+            { refresh_token: null, updated_at: new Date() },
             { where: [{ column: "id", operator: "=", value: userId }] }
         );
 

@@ -4,12 +4,12 @@ import {
     WhereCondition,
 } from "../../types/dbServices.type";
 
-export const findRecords = (
+export const findRecordsQuery = <T extends Record<string, any>>(
     table: string,
-    returning: string[] = ["*"],
+    returning: (keyof T)[] = ["*" as keyof T],
     options: FindOptions = {}
 ) => {
-    let query = `SELECT ${returning.map((col) => `${col}`).join(", ")} FROM "${table}"`;
+    let query = `SELECT ${returning.map((col) => `${String(col)}`).join(", ")} FROM "${table}"`;
     const params: any[] = [];
 
     const processWhereClause = (

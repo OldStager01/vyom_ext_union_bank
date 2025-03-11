@@ -2,7 +2,7 @@ import { QueryResultRow } from "pg";
 import { UpdateOptions } from "../../types/dbServices.type";
 import { ValidationError } from "../../utils/errors";
 
-export const updateRecords = <T extends QueryResultRow>(
+export const updateRecordsQuery = <T extends QueryResultRow>(
     table: string,
     data: Partial<T>,
     options: UpdateOptions

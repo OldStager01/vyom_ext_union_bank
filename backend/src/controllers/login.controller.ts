@@ -1,11 +1,12 @@
 import { NextFunction, Request, Response } from "express";
 import { sendOtp, verifyOtp } from "../services/otp.service";
 import { ApiResponse } from "../utils/ApiResponse";
-import { createUser, getUsers, updateUser } from "../db/models/users";
+import { createRecord, getRecords, updateRecord } from "../db/models/records";
 import { v4 as uuid } from "uuid";
 import { UserSchemaForCreationType, UserType } from "../types/tables/user.type";
 import { generateAccessToken, generateRefreshToken } from "../utils/jwtUtils";
 import { ValidationError } from "../utils/errors";
+import { tables } from "../db/tables";
 
 export const phoneControllerSend = async (
     req: Request,
@@ -37,7 +38,7 @@ export async function phoneControllerVerify(
         if (!result) throw new ValidationError("Invalid OTP");
 
         // Check if user exists
-        const user = await getUsers({
+        const user = await getRecords(tables.users, {
             where: [
                 {
                     column: "mobile_number",
@@ -49,7 +50,7 @@ export async function phoneControllerVerify(
         let authUser: { id: string } & Partial<UserType>;
         if (user.length === 0) {
             const id = uuid();
-            await createUser<UserSchemaForCreationType>({
+            await createRecord<UserSchemaForCreationType>(tables.users, {
                 id,
                 mobile_number,
                 registration_status: "pan",
@@ -68,9 +69,11 @@ export async function phoneControllerVerify(
         const refreshToken = generateRefreshToken(authUser.id);
 
         // Update refresh token in database
-        await updateUser<UserType>(
+        await updateRecord<UserType>(
+            tables.users,
             {
                 refresh_token: refreshToken,
+                updated_at: new Date(),
             },
             {
                 where: [

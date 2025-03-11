@@ -1,5 +1,11 @@
-import { getUsers, updateUser } from "../../../../db/models/users";
+import {
+    createRecord,
+    getRecords,
+    updateRecord,
+} from "../../../../db/models/records";
+import { tables } from "../../../../db/tables";
 import { UserType } from "../../../../types/tables/user.type";
+import { UserAddressType } from "../../../../types/tables/user_addresses.type";
 import { ForbiddenError, ValidationError } from "../../../../utils/errors";
 import { verifyOtp } from "../../../otp.service";
 import { getData } from "../../../redis/dataOperation";
@@ -22,7 +28,7 @@ export default async function verifyAadharOtp(
             throw new ValidationError("Invalid OTP");
         }
 
-        const user: Partial<UserType> = (await getUsers({
+        const user: Partial<UserType[]> = (await getRecords(tables.users, {
             where: [
                 {
                     column: "id",
@@ -30,33 +36,67 @@ export default async function verifyAadharOtp(
                     value: id,
                 },
             ],
-        })) as Partial<UserType>;
-
-        if (!user) {
+        })) as Partial<UserType[]>;
+        if (user.length === 0) {
             throw new ForbiddenError("User not found");
         }
 
-        if (user.registration_status && user.registration_status !== "aadhar") {
+        if (
+            user[0]?.registration_status &&
+            user[0]?.registration_status !== "aadhar"
+        ) {
             throw new ValidationError("Choose a valid step!");
         }
 
+        const userUpdateObject: Partial<UserType> = {};
         // Mask the aadhar number
-        aadhar_number = aadhar_number.slice(-4).padStart(12, "*");
+        userUpdateObject.aadhar_number = aadhar_number
+            .slice(-4)
+            .padStart(12, "*");
+        // Get the DOB
+        userUpdateObject.dob = new Date(response?.dob.split("T")[0]);
+        // Get the gender
+        userUpdateObject.gender = response?.gender as "M" | "F" | "Other";
+        // Get the email
+        userUpdateObject.email = response?.email;
+        // Get photo link
+        userUpdateObject.aadhar_photo_link = response?.photo_link;
+        // Set Registration Status to other
+        userUpdateObject.registration_status = "other";
+        // Updated at
+        userUpdateObject.updated_at = new Date();
 
-        await updateUser<UserType>(
-            {
-                aadhar_number,
-                registration_status: "other",
-            },
-            {
-                where: [
-                    {
-                        column: "id",
-                        operator: "=",
-                        value: id,
-                    },
-                ],
-            }
+        await updateRecord<UserType>(tables.users, userUpdateObject, {
+            where: [
+                {
+                    column: "id",
+                    operator: "=",
+                    value: id,
+                },
+            ],
+        });
+
+        // Update the address
+        const addressResponse: Partial<UserAddressType> =
+            response.split_address;
+        const userAddressObject: Partial<UserAddressType> = {
+            address_type: "permanent",
+        };
+
+        userAddressObject.user_id = id;
+        userAddressObject.country = addressResponse.country;
+        userAddressObject.state = addressResponse.state;
+        userAddressObject.district = addressResponse.district;
+        userAddressObject.city = addressResponse.city;
+        userAddressObject.po = addressResponse.po;
+        userAddressObject.pincode = addressResponse.pincode;
+        userAddressObject.street = addressResponse.street;
+        userAddressObject.house = addressResponse.house;
+        userAddressObject.landmark = addressResponse.landmark;
+
+        await createRecord<Partial<UserAddressType>>(
+            tables.userAddresses,
+            userAddressObject
         );
     } catch (error) {
         throw error;
@@ -82,7 +122,7 @@ const demoAadharServer = async (ref_id: string, otp: string) => {
                 dist: "Haveri",
                 house: "Shri Kanaka Nilaya",
                 landmark: "",
-                pincode: 581115,
+                pincode: "581115",
                 po: "Ranebennur",
                 state: "Karnataka",
                 street: "Umashankar Nagar 1st Main 5th Cross",

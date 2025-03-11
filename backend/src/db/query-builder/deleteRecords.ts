@@ -5,7 +5,7 @@ import { ValidationError } from "../../utils/errors";
 /**
  * DELETE query builder - Securely deletes records with filtering.
  */
-export const deleteRecords = <T extends QueryResultRow>(
+export const deleteRecordsQuery = <T extends QueryResultRow>(
     table: string,
     options: DeleteOptions
 ) => {

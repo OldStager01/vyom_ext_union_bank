@@ -2,7 +2,7 @@ import { QueryResultRow } from "pg";
 import { QueryOptions } from "../../types/dbServices.type";
 import { ValidationError } from "../../utils/errors";
 
-export const createRecords = <T extends QueryResultRow>(
+export const createRecordsQuery = <T extends QueryResultRow>(
     table: string,
     data: Partial<T> | Partial<T>[],
     options: QueryOptions = { returning: ["*"] }
