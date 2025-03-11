@@ -2,6 +2,7 @@ import { Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import env from "../config/env";
 import { AuthRequest } from "../types/authRequest.type";
+import { UnauthorizedError, ForbiddenError } from "../utils/errors";
 
 // Middleware for verifying access tokens
 const authMiddleware = async (
@@ -12,8 +13,7 @@ const authMiddleware = async (
     try {
         const authHeader = req.headers.authorization;
         if (!authHeader || !authHeader.startsWith("Bearer ")) {
-            res.status(401).json({ error: "Unauthorized: Missing token" });
-            return;
+            throw new UnauthorizedError("Unauthorized: No access token found");
         }
 
         const accessToken = authHeader.split(" ")[1];
@@ -23,24 +23,17 @@ const authMiddleware = async (
                 accessToken,
                 env.ACCESS_TOKEN_SECRET as string
             ) as { id: string };
-            console.log("Decoded:", decoded);
             req.user = { id: decoded.id };
             return next();
         } catch (err) {
             if (err instanceof jwt.TokenExpiredError) {
                 console.log("Token expired");
-                res.status(401).json({
-                    error: "Token expired. Please refresh your token.",
-                });
-                return;
+                throw new UnauthorizedError("Unauthorized: Token expired");
             }
-            res.status(403).json({ error: "Invalid access token" });
-            return;
+            throw new ForbiddenError("Forbidden: Invalid access token");
         }
     } catch (error) {
-        console.error("Auth Middleware Error:", error);
-        res.status(500).json({ error: "Internal Server Error" });
-        return;
+        next(error);
     }
 };
 

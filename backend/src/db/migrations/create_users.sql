@@ -15,15 +15,15 @@ CREATE TABLE IF NOT EXISTS users (
     aadhar_photo_link TEXT ,
     facial_embedding FLOAT[] DEFAULT NULL,
     kyc_status VARCHAR(20) NOT NULL DEFAULT 'pending' CHECK (kyc_status IN ('pending', 'approved', 'rejected')),
-    registration_status VARCHAR(50) NOT NULL DEFAULT 'pending_pan_verification' CHECK (
+    registration_status VARCHAR(50) NOT NULL DEFAULT 'pan' CHECK (
         registration_status IN (
-            'pending_pan_verification',
-            'pending_aadhaar_verification',
-            'pending_email_verification',
-            'pending_facial_scan',
-            'pending_document_upload',
-            'pending_other_details',
-            'pending_video_verification',
+            'pan',
+            'aadhar',
+            'email',
+            'face',
+            'document',
+            'other',
+            'vkyc',
             'completed'
         )
     ),

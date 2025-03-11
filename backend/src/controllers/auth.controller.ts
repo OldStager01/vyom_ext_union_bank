@@ -1,23 +1,23 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
-import env from "../../../config/env";
-import { getUsers, updateUser } from "../../../db/models/users";
-import {
-    generateAccessToken,
-    generateRefreshToken,
-} from "../../../utils/jwtUtils";
-import { AuthRequest } from "../../../types/authRequest.type";
+import env from "../config/env";
+import { getUsers, updateUser } from "../db/models/users";
+import { generateAccessToken, generateRefreshToken } from "../utils/jwtUtils";
+import { AuthRequest } from "../types/authRequest.type";
+import { ForbiddenError, UnauthorizedError } from "../utils/errors";
+import { ApiResponse } from "../utils/ApiResponse";
 
 // Refresh Token API
-export const refreshToken = async (req: Request, res: Response) => {
+export const refreshToken = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
     try {
         const refreshToken = req.headers["x-refresh-token"] as string;
 
         if (!refreshToken) {
-            res.status(401).json({
-                error: "Unauthorized: No refresh token provided",
-            });
-            return;
+            throw new ForbiddenError("No refresh token found");
         }
 
         // Verify and decode refresh token
@@ -28,9 +28,7 @@ export const refreshToken = async (req: Request, res: Response) => {
                 env.REFRESH_TOKEN_SECRET as string
             );
         } catch (error) {
-            res.status(403).json({
-                error: "Invalid refresh token. Please log in again.",
-            });
+            throw new ForbiddenError("Invalid refresh token");
             return;
         }
 
@@ -42,24 +40,21 @@ export const refreshToken = async (req: Request, res: Response) => {
         });
 
         if (users.length === 0) {
-            res.status(403).json({
-                error: "Invalid refresh token. Please log in again.",
-            });
-            return;
+            throw new ForbiddenError(
+                "Invalid refresh token. Please log in again."
+            );
         }
 
         const user = users[0];
-        console.log(user);
         // Security: If refresh token does not match, logout user
         if (refreshToken !== user.refresh_token) {
             await updateUser(
                 { refresh_token: null },
                 { where: [{ column: "id", operator: "=", value: userId }] }
             );
-            res.status(403).json({
-                error: "Suspicious activity detected. Please log in again.",
-            });
-            return;
+            throw new ForbiddenError(
+                "Invalid refresh token. Please log in again."
+            );
         }
 
         // Generate new tokens (ROTATION)
@@ -76,23 +71,25 @@ export const refreshToken = async (req: Request, res: Response) => {
         res.setHeader("x-access-token", newAccessToken);
         res.setHeader("x-refresh-token", newRefreshToken);
 
-        res.json({ message: "Token refreshed successfully" });
+        ApiResponse.send(res, 200, "Tokens refreshed successfully");
         return;
     } catch (error) {
-        console.error("Refresh Token Error:", error);
-        res.status(500).json({ error: "Internal Server Error" });
-        return;
+        next(error);
     }
 };
 
 // Logout API
 
-export const logout = async (req: AuthRequest, res: Response) => {
+export const logout = async (
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+) => {
     try {
         const userId = req.user?.id; // Assuming user ID is available in `req.user` from middleware
 
         if (!userId) {
-            res.status(401).json({ error: "Unauthorized: No user found" });
+            throw new UnauthorizedError("Unauthorized: No user found");
             return;
         }
 
@@ -102,11 +99,10 @@ export const logout = async (req: AuthRequest, res: Response) => {
             { where: [{ column: "id", operator: "=", value: userId }] }
         );
 
-        res.json({ message: "Logged out successfully" });
+        ApiResponse.send(res, 200, "Logout successful");
+
         return;
     } catch (error) {
-        console.error("Logout Error:", error);
-        res.status(500).json({ error: "Internal Server Error" });
-        return;
+        next(error);
     }
 };

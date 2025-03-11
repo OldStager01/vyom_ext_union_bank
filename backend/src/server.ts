@@ -5,12 +5,13 @@ import compression from "compression";
 import morgan from "morgan";
 import dotenv from "dotenv";
 import logger from "./config/logger";
-import errorHandler from "./middlewares/error.middleware";
+import { errorHandler } from "./middlewares/error.middleware";
 import env from "./config/env";
 import { runMigrations } from "./db/init";
 
 import v1Router from "./routes/v1";
 import { uploadDynamicFiles } from "./middlewares/uploadMiddleware";
+import { ApiResponse } from "./utils/ApiResponse";
 // Load environment variables
 dotenv.config();
 
@@ -46,7 +47,8 @@ app.use(express.urlencoded({ extended: true }));
 
 // Routes
 app.get("/", (req: Request, res: Response) => {
-    res.status(200).json({ message: "Hello, World!" });
+    ApiResponse.send(res, 200, "Hello World");
+    return;
 });
 
 app.use("/api/v1", v1Router);

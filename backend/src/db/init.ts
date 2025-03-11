@@ -25,7 +25,7 @@ const runMigrations = async () => {
     try {
         await transaction(sql);
     } catch (err) {
-        console.error(`Error applying migration:`, err);
+        console.error("Database Migration Error", err);
         process.exit(1); // Exit the script on failure
     }
 };

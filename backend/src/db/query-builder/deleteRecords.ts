@@ -1,5 +1,6 @@
 import { QueryResultRow } from "pg";
 import { DeleteOptions } from "../../types/dbServices.type";
+import { ValidationError } from "../../utils/errors";
 
 /**
  * DELETE query builder - Securely deletes records with filtering.
@@ -9,7 +10,9 @@ export const deleteRecords = <T extends QueryResultRow>(
     options: DeleteOptions
 ) => {
     if (!options.where || options.where.length === 0) {
-        throw new Error("DELETE queries must have a WHERE condition.");
+        throw new ValidationError(
+            "DELETE queries must have a WHERE condition."
+        );
     }
 
     const params: any[] = [];

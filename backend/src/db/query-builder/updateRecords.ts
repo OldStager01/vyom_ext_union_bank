@@ -1,5 +1,6 @@
 import { QueryResultRow } from "pg";
 import { UpdateOptions } from "../../types/dbServices.type";
+import { ValidationError } from "../../utils/errors";
 
 export const updateRecords = <T extends QueryResultRow>(
     table: string,
@@ -7,12 +8,14 @@ export const updateRecords = <T extends QueryResultRow>(
     options: UpdateOptions
 ) => {
     if (!options.where || options.where.length === 0) {
-        throw new Error("UPDATE queries must have a WHERE condition.");
+        throw new ValidationError(
+            "UPDATE queries must have a WHERE condition."
+        );
     }
 
     const keys = Object.keys(data);
     if (keys.length === 0) {
-        throw new Error("No data provided for update.");
+        throw new ValidationError("No data provided for update.");
     }
 
     const params: any[] = [];

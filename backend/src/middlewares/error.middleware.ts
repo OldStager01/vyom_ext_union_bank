@@ -1,23 +1,27 @@
 import { Request, Response, NextFunction } from "express";
+import { AppError } from "../utils/errors";
 
-interface CustomError extends Error {
-    statusCode?: number;
-    errors?: string[];
-}
-
-export default function errorMiddleware(
-    err: CustomError,
+// Centralized error handler
+export function errorHandler(
+    err: any,
     req: Request,
     res: Response,
     next: NextFunction
 ) {
-    const statusCode = err.statusCode ?? 500;
-    const message = err.message || "Internal Server Error";
+    const statusCode = err instanceof AppError ? err.statusCode : 500;
+    const message =
+        err instanceof AppError ? err.message : "Something went wrong";
 
-    err.stack && console.error(err.stack);
+    console.error({
+        message: err.message,
+        stack: err.stack,
+        statusCode,
+        path: req.originalUrl,
+        method: req.method,
+    });
 
     res.status(statusCode).json({
-        success: false,
+        status: "error",
         message,
     });
 }

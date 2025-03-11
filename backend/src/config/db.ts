@@ -8,7 +8,8 @@ const pool = new Pool({
         env.NODE_ENV === "production" || env.NODE_ENV === "online_development"
             ? { rejectUnauthorized: false }
             : false,
-    connectionTimeoutMillis: 2000,
+    connectionTimeoutMillis: 5000,
+    idleTimeoutMillis: 30000,
 });
 
 // Perform a query on the database
@@ -17,7 +18,6 @@ const query = async <T extends QueryResultRow>(
     params: any = []
 ) => {
     try {
-        console.log(text);
         const result = await pool.query<T>(text, params);
         return result.rows;
     } catch (error) {

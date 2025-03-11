@@ -1,6 +1,11 @@
-import { updateUser } from "../../../db/models/users";
+import { getUsers, updateUser } from "../../../db/models/users";
 import { PanVerificationType } from "../../../types/panVerification.type";
 import { UserType } from "../../../types/tables/user.type";
+import {
+    ValidationError,
+    InternalServerError,
+    ConflictError,
+} from "../../../utils/errors";
 
 export async function verifyPan(
     id: string,
@@ -8,42 +13,34 @@ export async function verifyPan(
     name: string,
     dob: string
 ) {
-    const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
-    let isValid = true;
-    if (!panRegex.test(pan_number)) {
-        isValid = false;
-    }
-    const date = new Date(dob);
-    if (isNaN(date.getTime()) || new Date() < date) {
-        isValid = false;
-    }
+    try {
+        const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
+        if (!panRegex.test(pan_number))
+            throw new ValidationError("Invalid PAN");
+        const date = new Date(dob);
+        if (isNaN(date.getTime()) || new Date() < date)
+            throw new ValidationError("Invalid date of birth");
 
-    const nameRegex = /^[a-zA-Z ]+$/;
-    if (!nameRegex.test(name)) {
-        isValid = false;
-    }
-    const panDetails: PanVerificationType = await getPanDetails(pan_number);
-    if (!panDetails || panDetails.status !== "VALID") {
-        isValid = false;
-    }
-    if (
-        name.toLowerCase() !== panDetails.name.toLowerCase() ||
-        date.toDateString() !== new Date(panDetails.dob).toDateString()
-    ) {
-        isValid = false;
-    }
-    if (!isValid) {
-        throw new Error("Invalid pan details");
-    }
+        const nameRegex = /^[a-zA-Z ]+$/;
+        if (!nameRegex.test(name)) throw new ValidationError("Invalid name");
 
-    await updateUser<UserType>(
-        {
-            pan_number,
-            name,
-            dob: new Date(dob),
-            registration_status: "pending_aadhaar_verification",
-        },
-        {
+        // TODO: Call PAN verification API
+        const panDetails: PanVerificationType = await getPanDetails(pan_number);
+        if (!panDetails || panDetails.status !== "VALID") {
+            throw new ConflictError(
+                "PAN is already registered with another user or invalid"
+            );
+        }
+
+        if (
+            name.toLowerCase() !== panDetails.name.toLowerCase() ||
+            date.toDateString() !== new Date(panDetails.dob).toDateString()
+        ) {
+            throw new ConflictError(
+                "Name or date of birth does not match with PAN records"
+            );
+        }
+        const user = await getUsers({
             where: [
                 {
                     column: "id",
@@ -51,8 +48,34 @@ export async function verifyPan(
                     value: id,
                 },
             ],
+        });
+        if (user.length === 0) {
+            throw new InternalServerError("User not found");
         }
-    );
+
+        if (user[0]?.registration_status !== "pan") {
+            throw new ConflictError("Choose a valid method!");
+        }
+        await updateUser<UserType>(
+            {
+                pan_number,
+                name,
+                dob: new Date(dob),
+                registration_status: "aadhar",
+            },
+            {
+                where: [
+                    {
+                        column: "id",
+                        operator: "=",
+                        value: id,
+                    },
+                ],
+            }
+        );
+    } catch (error) {
+        throw error;
+    }
 }
 
 const getPanDetails = async (
@@ -62,7 +85,7 @@ const getPanDetails = async (
         return resolve({
             verification_id: "test001",
             reference_id: 21637861,
-            pan: "ABCDY1234D",
+            pan: "ABCEY1234D",
             name: "John Doe",
             dob: "1993-06-30",
             name_match: "Y",

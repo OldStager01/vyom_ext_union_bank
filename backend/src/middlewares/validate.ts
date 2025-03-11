@@ -1,7 +1,11 @@
 import { NextFunction, Request, Response } from "express";
 import { ZodSchema } from "zod";
-import { ApiError } from "../utils/ApiError";
-import { fromError } from "zod-validation-error";
+import {
+    fromError,
+    ValidationError as zodValidationError,
+} from "zod-validation-error";
+import { ValidationError } from "../utils/errors";
+
 export default function validate(
     schema: ZodSchema<any>,
     optional: Boolean = false
@@ -15,8 +19,11 @@ export default function validate(
             }
             next();
         } catch (error) {
-            const e = fromError(error);
-            throw new ApiError(400, e.message, [], e.stack);
+            if (error instanceof zodValidationError) {
+                const e = fromError(error);
+                throw new ValidationError(e.message);
+            }
+            throw error;
         }
     };
 }

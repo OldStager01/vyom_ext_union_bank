@@ -1,5 +1,6 @@
 import { QueryResultRow } from "pg";
 import { QueryOptions } from "../../types/dbServices.type";
+import { ValidationError } from "../../utils/errors";
 
 export const createRecords = <T extends QueryResultRow>(
     table: string,
@@ -10,7 +11,7 @@ export const createRecords = <T extends QueryResultRow>(
     const records = isArray ? data : [data];
 
     if (records.length === 0) {
-        throw new Error("No data provided for insertion.");
+        throw new ValidationError("No data provided for insertion.");
     }
 
     const keys = Object.keys(records[0]);
