@@ -1,5 +1,5 @@
 import { NextFunction, Response } from "express";
-import { verifyPan } from "../../../services/user/register/verifyPan";
+import { verifyPan } from "../../../services/user/register/verifyPan.service";
 import { AuthRequest } from "../../../types/authRequest.type";
 import { ApiResponse } from "../../../utils/ApiResponse";
 import { ValidationError, UnauthorizedError } from "../../../utils/errors";

@@ -61,3 +61,25 @@ export const UserSchemaForCreation = UserSchema.pick({
     created_at: true,
     updated_at: true,
 });
+
+export const MaritalStatusOptions = [
+    "Single",
+    "Married",
+    "Divorced",
+    "Widowed",
+] as const;
+
+export const GenderOptions = ["M", "F", "Other"] as const;
+
+export const kycStatusOptions = ["pending", "approved", "rejected"] as const;
+
+export const registrationStatusOptions = [
+    "pan",
+    "aadhar",
+    "email",
+    "face",
+    "document",
+    "other",
+    "vkyc",
+    "completed",
+] as const;

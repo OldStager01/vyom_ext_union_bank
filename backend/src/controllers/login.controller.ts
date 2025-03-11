@@ -95,6 +95,7 @@ export async function phoneControllerVerify(
             mobile_number: authUser.mobile_number,
             next_step: authUser.registration_status,
         });
+
         return;
     } catch (error) {
         next(error);

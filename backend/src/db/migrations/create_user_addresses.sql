@@ -6,6 +6,7 @@ CREATE TABLE IF NOT EXISTS user_addresses (
     state VARCHAR(100) NOT NULL,
     district VARCHAR(100),
     city VARCHAR(100),
+    po VARCHAR(100),
     pincode VARCHAR(10) NOT NULL,
     street VARCHAR(255),
     house VARCHAR(255),

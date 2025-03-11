@@ -1,8 +1,8 @@
 import { NextFunction, Response } from "express";
 import { AuthRequest } from "../../../types/authRequest.type";
 import { ApiResponse } from "../../../utils/ApiResponse";
-import sendAadharOtp from "../../../services/user/register/aadhar/sendAadharOtp";
-import verifyAadharOtp from "../../../services/user/register/aadhar/verifyAadharOtp";
+import sendAadharOtp from "../../../services/user/register/aadhar/sendAadharOtp.service";
+import verifyAadharOtp from "../../../services/user/register/aadhar/verifyAadharOtp.service";
 import { UnauthorizedError, ValidationError } from "../../../utils/errors";
 
 export const sendAadharVerificationController = async (
