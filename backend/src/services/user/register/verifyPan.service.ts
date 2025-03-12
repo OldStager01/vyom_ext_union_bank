@@ -73,7 +73,7 @@ const getPanDetails = async (
         return resolve({
             verification_id: "test001",
             reference_id: 21637861,
-            pan: "ABCCO1234D",
+            pan: "ABCCO1234G",
             name: "John Doe",
             dob: "1993-06-30",
             name_match: "Y",

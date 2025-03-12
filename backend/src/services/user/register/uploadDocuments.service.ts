@@ -65,6 +65,8 @@ export async function uploadDocuments(id: string, files: DocumentFilesType) {
                 ],
             }
         );
+
+        // Scheduule the appointment
     } catch (error) {
         throw error;
     }

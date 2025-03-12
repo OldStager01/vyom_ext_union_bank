@@ -38,7 +38,9 @@ export default async function verifyAadharOtp(
         // Get the gender
         userUpdateObject.gender = response?.gender as "M" | "F" | "Other";
         // Get the email
-        userUpdateObject.email = response?.email;
+        if (response.email && response.email !== "") {
+            userUpdateObject.email = response.email;
+        }
         // Get photo link
         userUpdateObject.aadhar_photo_link = response?.photo_link;
         // Set Registration Status to other
