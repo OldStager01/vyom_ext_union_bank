@@ -3,7 +3,7 @@ import { tables } from "../../../db/tables";
 import { UserType } from "../../../types/tables/user.type";
 import { ValidationError } from "../../../utils/errors";
 
-const EMBEDDING_LENGTH = 128;
+const EMBEDDING_LENGTH = 192;
 
 export async function registerFace(id: string, facial_embedding: string) {
     try {

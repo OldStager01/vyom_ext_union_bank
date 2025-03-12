@@ -20,9 +20,16 @@ export const EmployeeSchema = z.object({
         .regex(/^\+?[1-9]\d{1,14}$/)
         .min(10, "Phone number must be at least 10 digits long")
         .max(15, "Phone number must be at most 15 digits long"),
-    password: z.string().min(8, "Password must be at least 8 characters long"),
-    role: z.enum(["manager", "cashier", "loan_officer", "customer_support"]),
-    status: z.enum(["active", "inactive", "terminated"]),
+    password: z.string(),
+    role: z.enum([
+        "manager",
+        "cashier",
+        "loan_officer",
+        "customer_support",
+        "kyc_agent",
+    ]),
+    refresh_token: z.string().nullable().optional(),
+    status: z.enum(["active", "inactive", "terminated"]).optional(),
     created_at: z.date().default(() => new Date()),
     updated_at: z.date().default(() => new Date()),
 });

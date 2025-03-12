@@ -65,8 +65,8 @@ export async function phoneControllerVerify(
         } else {
             authUser = user[0] as { id: string } & Partial<UserType>;
         }
-        const accessToken = generateAccessToken(authUser.id);
-        const refreshToken = generateRefreshToken(authUser.id);
+        const accessToken = generateAccessToken(authUser.id, "user");
+        const refreshToken = generateRefreshToken(authUser.id, "user");
 
         // Update refresh token in database
         await updateRecord<UserType>(

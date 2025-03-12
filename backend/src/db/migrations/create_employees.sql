@@ -7,9 +7,10 @@ CREATE TABLE IF NOT EXISTS employees (
     name VARCHAR(100) NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
     phone VARCHAR(15) UNIQUE NOT NULL,
-    password TEXT NOT NULL,
-    role VARCHAR(50) NOT NULL CHECK (role IN ('manager', 'cashier', 'loan_officer', 'customer_support')),
-    status VARCHAR(20) NOT NULL CHECK (status IN ('active', 'inactive', 'terminated')),
+    password VARCHAR(255) NOT NULL,
+    refresh_token VARCHAR(255) DEFAULT NULL,
+    role VARCHAR(50) NOT NULL CHECK (role IN ('manager', 'cashier', 'loan_officer', 'customer_support','kyc_agent')),
+    status VARCHAR(20) NOT NULL CHECK (status IN ('active', 'inactive', 'terminated')) DEFAULT 'active',
     created_at TIMESTAMP DEFAULT NOW(),
     updated_at TIMESTAMP DEFAULT NOW()
 );

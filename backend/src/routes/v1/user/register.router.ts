@@ -6,10 +6,10 @@ import {
     otherDetailsController,
     faceRegistrationController,
     uploadDocumnentsController,
-} from "../../controllers/users/register/index";
+} from "../../../controllers/users/register/index";
 
-import { uploadDynamicFiles } from "../../middlewares/uploadMiddleware";
-import { userStage } from "../../middlewares/userStage.middleware";
+import { uploadDynamicFiles } from "../../../middlewares/uploadMiddleware";
+import { userStage } from "../../../middlewares/userStage.middleware";
 
 const router = Router();
 
