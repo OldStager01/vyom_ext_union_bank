@@ -1,6 +1,6 @@
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
-CREATE TYPE service_ticket_priority AS ENUM ('low', 'medium', 'high');
+-- CREATE TYPE service_ticket_priority AS ENUM ('low', 'medium', 'high');
 
 CREATE TABLE IF NOT EXISTS service_tickets (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
