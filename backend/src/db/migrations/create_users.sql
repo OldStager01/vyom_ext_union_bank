@@ -24,6 +24,7 @@ CREATE TABLE IF NOT EXISTS users (
             'document',
             'other',
             'vkyc',
+            'account',
             'completed'
         )
     ),

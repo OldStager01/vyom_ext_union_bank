@@ -14,6 +14,7 @@ const authMiddleware = async (
 ) => {
     try {
         const authHeader = req.headers.authorization;
+        console.log("authHeader", authHeader);
         if (!authHeader || !authHeader.startsWith("Bearer ")) {
             throw new UnauthorizedError("Unauthorized: No access token found");
         }

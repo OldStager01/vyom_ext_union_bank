@@ -11,7 +11,8 @@ export async function signUpEmployee(
     email: string,
     phone: string,
     pass: string,
-    role: string
+    role: string,
+    spoken_languages: string[]
 ) {
     try {
         const employee_number = crypto
@@ -28,6 +29,7 @@ export async function signUpEmployee(
             phone,
             password,
             role,
+            spoken_languages,
         });
         if (!employee.success) {
             console.error(employee.error);

@@ -17,7 +17,9 @@ export const otherDetailsController = async (
         throw new ValidationError("All fields are required");
     try {
         await addOtherDetails(id, occupation, annual_income, marital_status);
-        ApiResponse.send(res, 200, "Other details added successfully");
+        ApiResponse.send(res, 200, "Other details added successfully", {
+            next_step: "face",
+        });
         return;
     } catch (error) {
         next(error);

@@ -1,3 +1,4 @@
+import { query } from "../../../config/db";
 import { createRecord, updateRecord } from "../../../db/models/records";
 import { tables } from "../../../db/tables";
 import { DocumentFilesType } from "../../../types/cloudinaryFile.type";

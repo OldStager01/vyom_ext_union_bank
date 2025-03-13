@@ -26,7 +26,9 @@ export const uploadDocumnentsController = async (
 
         await uploadDocuments(id, files);
 
-        ApiResponse.send(res, 200, "Documents uploaded successfully");
+        ApiResponse.send(res, 200, "Documents uploaded successfully", {
+            next_step: "vkyc",
+        });
         return;
     } catch (error) {
         next(error);

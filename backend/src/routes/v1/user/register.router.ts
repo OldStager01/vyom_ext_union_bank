@@ -10,6 +10,10 @@ import {
 
 import { uploadDynamicFiles } from "../../../middlewares/uploadMiddleware";
 import { userStage } from "../../../middlewares/userStage.middleware";
+import {
+    vkycAgentAllotmentController,
+    vkycStatusUpdateController,
+} from "../../../controllers/users/register/video_kyc.controller";
 
 const router = Router();
 
@@ -67,5 +71,9 @@ router.post(
     upload(),
     uploadDocumnentsController
 );
+
+// STEP 6
+router.post("/vkyc-allot", userStage("vkyc"), vkycAgentAllotmentController);
+// TODO: Add GET KYC ROUTES
 
 export default router;

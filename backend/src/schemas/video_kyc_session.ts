@@ -6,8 +6,12 @@ const VideoKycSessionSchema = z.object({
     scheduled_at: z.date(),
     agent_id: z.string().uuid().nullable(),
     status: z.enum(["scheduled", "completed", "failed", "rejected"]),
-    verified_at: z.date().nullable(),
-    created_at: z.date().default(() => new Date()),
+    meet_link: z.string().url().optional(),
+    verified_at: z.date().nullable().optional(),
+    created_at: z
+        .date()
+        .default(() => new Date())
+        .optional(),
 });
 
 export { VideoKycSessionSchema };

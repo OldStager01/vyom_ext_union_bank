@@ -17,7 +17,9 @@ export const faceRegistrationController = async (
         throw new ValidationError("Facial Embedding is required");
     try {
         await registerFace(id, facial_embedding);
-        ApiResponse.send(res, 200, "Face registered successfully");
+        ApiResponse.send(res, 200, "Face registered successfully", {
+            next_step: "document",
+        });
         return;
     } catch (error) {
         next(error);

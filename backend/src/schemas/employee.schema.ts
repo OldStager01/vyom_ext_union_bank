@@ -28,6 +28,7 @@ export const EmployeeSchema = z.object({
         "customer_support",
         "kyc_agent",
     ]),
+    spoken_languages: z.array(z.string()).optional(),
     refresh_token: z.string().nullable().optional(),
     status: z.enum(["active", "inactive", "terminated"]).optional(),
     created_at: z.date().default(() => new Date()),

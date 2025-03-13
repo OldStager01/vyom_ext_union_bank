@@ -14,11 +14,36 @@ export const employeeSignUpController = async (
     next: NextFunction
 ) => {
     try {
-        const { branch_id, name, email, phone, password, role } = req.body;
-        if (!branch_id || !name || !email || !phone || !password || !role)
+        const {
+            branch_id,
+            name,
+            email,
+            phone,
+            password,
+            role,
+            spoken_languages,
+        } = req.body;
+        if (
+            !branch_id ||
+            !name ||
+            !email ||
+            !phone ||
+            !password ||
+            !role ||
+            !Array.isArray(spoken_languages) ||
+            spoken_languages.length === 0
+        )
             throw new ValidationError("All Fields are Required");
 
-        await signUpEmployee(branch_id, name, email, phone, password, role);
+        await signUpEmployee(
+            branch_id,
+            name,
+            email,
+            phone,
+            password,
+            role,
+            spoken_languages
+        );
 
         ApiResponse.send(res, 200, "Employee created successfully");
     } catch (error) {

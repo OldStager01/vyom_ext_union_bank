@@ -31,8 +31,8 @@ router.use(
 
 router.use(
     "/branch",
-    authMiddleware,
-    userTypeMiddleware("employee"),
+    // authMiddleware,
+    // userTypeMiddleware("employee"),
     branchRouter
 );
 

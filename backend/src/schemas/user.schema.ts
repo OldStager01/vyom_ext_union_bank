@@ -81,5 +81,6 @@ export const registrationStatusOptions = [
     "document",
     "other",
     "vkyc",
+    "account",
     "completed",
 ] as const;

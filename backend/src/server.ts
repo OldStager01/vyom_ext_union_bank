@@ -73,6 +73,7 @@ app.get("/test", async (req: Request, res: Response) => {
 });
 app.post("/test", upload(), async (req: Request, res: Response) => {
     res.status(200).json({ message: "Hello, World!", data: req.files });
+    return;
 });
 
 // 404 Handler
