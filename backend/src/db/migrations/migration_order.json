@@ -7,6 +7,7 @@
     "create_employees.sql",
     "create_branches.sql",
     "create_accounts.sql",
+    "create_account_products.sql",
     "create_loans.sql",
     "create_transactions.sql",
     "create_video_queries.sql",

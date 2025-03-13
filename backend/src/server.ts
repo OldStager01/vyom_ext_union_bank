@@ -10,7 +10,7 @@ import env from "./config/env";
 import { runMigrations } from "./db/init";
 
 import v1Router from "./routes/v1";
-import { uploadDynamicFiles } from "./middlewares/uploadMiddleware";
+import { uploadDynamicFiles } from "./middlewares/upload.middleware";
 import { ApiResponse } from "./utils/ApiResponse";
 import { NotFoundError } from "./utils/errors";
 // Load environment variables

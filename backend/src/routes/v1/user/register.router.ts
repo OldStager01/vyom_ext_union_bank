@@ -8,12 +8,13 @@ import {
     uploadDocumnentsController,
 } from "../../../controllers/users/register/index";
 
-import { uploadDynamicFiles } from "../../../middlewares/uploadMiddleware";
+import { uploadDynamicFiles } from "../../../middlewares/upload.middleware";
 import { userStage } from "../../../middlewares/userStage.middleware";
 import {
     vkycAgentAllotmentController,
     vkycStatusUpdateController,
 } from "../../../controllers/users/register/video_kyc.controller";
+import { accountCreateController } from "../../../controllers/users/register/account_create.controller";
 
 const router = Router();
 
@@ -75,5 +76,8 @@ router.post(
 // STEP 6
 router.post("/vkyc-allot", userStage("vkyc"), vkycAgentAllotmentController);
 // TODO: Add GET KYC ROUTES
+
+// STEP 7
+router.post("/create-account", userStage("account"), accountCreateController);
 
 export default router;

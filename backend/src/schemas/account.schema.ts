@@ -8,10 +8,17 @@ export const AccountSchema = z.object({
         .refine((value) => value !== undefined, {
             message: "user_id must be a valid UUID",
         }),
+    product_id: z.string().uuid(),
     account_number: z.string().min(1).max(20),
     account_type: z.enum(["savings", "current", "fixed_deposit"]),
     balance: z.number().nonnegative().default(0.0),
     status: z.enum(["active", "inactive", "closed", "frozen"]),
-    created_at: z.date().default(() => new Date()),
-    updated_at: z.date().default(() => new Date()),
+    created_at: z
+        .date()
+        .default(() => new Date())
+        .optional(),
+    updated_at: z
+        .date()
+        .default(() => new Date())
+        .optional(),
 });

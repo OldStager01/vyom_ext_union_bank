@@ -1,5 +1,6 @@
 export const tables = {
     accounts: "accounts",
+    account_products: "account_products",
     auditLogs: "audit_logs",
     branches: "branches",
     employees: "employees",
