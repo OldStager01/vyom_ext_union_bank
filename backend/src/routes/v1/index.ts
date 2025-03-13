@@ -4,6 +4,7 @@ import registerRouter from "./user/register.router";
 import employeeAuthRouter from "./auth/employee_auth.router";
 import branchRouter from "./branch/branch.router";
 import employeeRouter from "./employee/operations.router";
+import accountProductsRouter from "./common/account_products.router";
 import authMiddleware from "../../middlewares/auth.middleware";
 import { userTypeMiddleware } from "../../middlewares/userType.middleware";
 const router = Router();
@@ -35,5 +36,7 @@ router.use(
     // userTypeMiddleware("employee"),
     branchRouter
 );
+
+router.use("/account-products", accountProductsRouter);
 
 export default router;
