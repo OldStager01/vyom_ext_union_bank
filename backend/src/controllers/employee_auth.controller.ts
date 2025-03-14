@@ -21,6 +21,7 @@ export const employeeSignUpController = async (
             phone,
             password,
             role,
+            department,
             spoken_languages,
         } = req.body;
         if (
@@ -30,6 +31,7 @@ export const employeeSignUpController = async (
             !phone ||
             !password ||
             !role ||
+            !department ||
             !Array.isArray(spoken_languages) ||
             spoken_languages.length === 0
         )
@@ -42,6 +44,7 @@ export const employeeSignUpController = async (
             phone,
             password,
             role,
+            department,
             spoken_languages
         );
 

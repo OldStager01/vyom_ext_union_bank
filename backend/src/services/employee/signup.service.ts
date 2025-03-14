@@ -12,6 +12,7 @@ export async function signUpEmployee(
     phone: string,
     pass: string,
     role: string,
+    department: string,
     spoken_languages: string[]
 ) {
     try {
@@ -29,6 +30,7 @@ export async function signUpEmployee(
             phone,
             password,
             role,
+            department,
             spoken_languages,
         });
         if (!employee.success) {

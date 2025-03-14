@@ -34,10 +34,12 @@ const transaction = async <T extends QueryResultRow>(
     try {
         await client.query("BEGIN"); // Start the transaction
         const results: T[][] = [];
+        let counter = 0;
         for (const command of commands) {
             const { text, params } = command;
             const result = await client.query<T>(text, params);
             results.push(result.rows);
+            console.log(++counter);
         }
         await client.query("COMMIT"); // Commit the transaction
         return results;

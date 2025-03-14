@@ -59,6 +59,7 @@ const EnvSchema = z.object({
     REDIS_HOST_ONLINE: z.string().min(1),
     REDIS_PORT_ONLINE: z.string(),
     REDIS_PASSWORD_ONLINE: z.string().min(1),
+    CREDIT_BUREAU_API_URL: z.string().url(),
 });
 
 export { EnvSchema };

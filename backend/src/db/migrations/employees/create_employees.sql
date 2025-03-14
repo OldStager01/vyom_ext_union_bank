@@ -10,7 +10,14 @@ CREATE TABLE IF NOT EXISTS employees (
     password VARCHAR(255) NOT NULL,
     spoken_languages VARCHAR(100)[] NOT NULL,
     refresh_token VARCHAR(255) DEFAULT NULL,
-    role VARCHAR(50) NOT NULL CHECK (role IN ('manager', 'cashier', 'loan_officer', 'customer_support','kyc_agent')),
+    role VARCHAR(50) NOT NULL CHECK (
+        CASE 
+            WHEN department = 'operations' THEN role IN ('account_support', 'customer_support', 'kyc_agent', 'operations_manager', 'operations_lead')
+            WHEN department = 'loans' THEN role IN ('loan_officer', 'branch_support', 'loans_manager', 'loans_lead')
+            ELSE false
+        END
+    ),
+    department VARCHAR(50) NOT NULL CHECK (department IN ('operations', 'loans')),
     status VARCHAR(20) NOT NULL CHECK (status IN ('active', 'inactive', 'terminated')) DEFAULT 'active',
     created_at TIMESTAMP DEFAULT NOW(),
     updated_at TIMESTAMP DEFAULT NOW()

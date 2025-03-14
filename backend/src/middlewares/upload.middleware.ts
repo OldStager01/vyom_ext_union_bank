@@ -95,8 +95,10 @@ export const uploadDynamicFiles = (options: UploadOptions) => {
         upload.fields(options.fields)(req, res, async (err) => {
             if (err) return res.status(400).json({ error: err.message });
 
-            if (!req.files)
-                return res.status(400).json({ error: "No files uploaded" });
+            if (!req.files) {
+                req.body.fileUrls = [];
+                return next();
+            }
 
             try {
                 const fileUrls: Record<string, string | string[]> = {};

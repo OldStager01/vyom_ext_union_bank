@@ -22,6 +22,7 @@ const envObj = {
     REFRESH_TOKEN_SECRET: process.env.REFRESH_TOKEN_SECRET,
     ACCESS_TOKEN_EXPIRATION: process.env.ACCESS_TOKEN_EXPIRATION || "15m",
     REFRESH_TOKEN_EXPIRATION: process.env.REFRESH_TOKEN_EXPIRATION || "7d",
+    CREDIT_BUREAU_API_URL: process.env.CREDIT_BUREAU_API_URL,
 };
 
 const env = EnvSchema.parse(envObj);
