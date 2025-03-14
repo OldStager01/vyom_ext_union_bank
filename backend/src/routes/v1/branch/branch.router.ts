@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createBranchController } from "../../../controllers/branch/createBranch.controller";
+import { createBranchController } from "../../../controllers/branch/create_branch.controller";
 
 const router = Router();
 

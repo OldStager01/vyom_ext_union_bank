@@ -7,6 +7,7 @@ import { tables } from "../../../../db/tables";
 import { UserType } from "../../../../types/tables/user.type";
 import { UserAddressType } from "../../../../types/tables/user_addresses.type";
 import { ForbiddenError, ValidationError } from "../../../../utils/errors";
+import { getLatLongByPincode } from "../../../../utils/getLatLongByPincode";
 import { verifyOtp } from "../../../otp.service";
 import { getData } from "../../../redis/dataOperation";
 
@@ -75,6 +76,17 @@ export default async function verifyAadharOtp(
         userAddressObject.house = addressResponse.house;
         userAddressObject.landmark = addressResponse.landmark;
 
+        // GET the lat and long of the pincode
+        const { latitude, longitude } = await getLatLongByPincode(
+            addressResponse.pincode
+        );
+
+        userAddressObject.latitude = latitude;
+        userAddressObject.longitude = longitude;
+
+        console.log("Latitude: ", latitude);
+        console.log("Longitude: ", longitude);
+
         await createRecord<Partial<UserAddressType>>(
             tables.userAddresses,
             userAddressObject
@@ -103,7 +115,7 @@ const demoAadharServer = async (ref_id: string, otp: string) => {
                 dist: "Haveri",
                 house: "Shri Kanaka Nilaya",
                 landmark: "",
-                pincode: "581115",
+                pincode: "422012",
                 po: "Ranebennur",
                 state: "Karnataka",
                 street: "Umashankar Nagar 1st Main 5th Cross",

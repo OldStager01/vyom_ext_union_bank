@@ -10,8 +10,8 @@ ALTER TABLE service_tickets
     REFERENCES employees(id)
     ON DELETE SET NULL;
 
-ALTER TABLE service_tickets
-    ADD CONSTRAINT fk_video_query_id
-    FOREIGN KEY (video_query_id)
-    REFERENCES video_queries(id)
-    ON DELETE SET NULL;
+-- ALTER TABLE service_tickets
+--     ADD CONSTRAINT fk_video_query_id
+--     FOREIGN KEY (video_query_id)
+--     REFERENCES video_queries(id)
+--     ON DELETE SET NULL;

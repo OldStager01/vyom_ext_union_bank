@@ -7,4 +7,4 @@ CREATE TABLE IF NOT EXISTS user_otps(
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX idx_otp_user ON user_otps(user_id);
+CREATE INDEX IF NOT EXISTS idx_otp_user ON user_otps(user_id);

@@ -9,9 +9,25 @@ export const createBranchController = async (
     next: NextFunction
 ) => {
     try {
-        const { branch_code, branch_name, address, phone } = req.body;
+        const {
+            branch_code,
+            branch_name,
+            address,
+            city,
+            state,
+            pin_code,
+            phone,
+        } = req.body;
 
-        await createBranch(branch_code, branch_name, address, phone);
+        await createBranch(
+            branch_code,
+            branch_name,
+            address,
+            city,
+            state,
+            pin_code,
+            phone
+        );
 
         ApiResponse.send(res, 201, "Branch Created");
     } catch (error) {

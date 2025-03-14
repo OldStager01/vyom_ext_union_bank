@@ -28,6 +28,7 @@ CREATE TABLE IF NOT EXISTS users (
             'completed'
         )
     ),
+    branch_id UUID,
     refresh_token VARCHAR(255) DEFAULT NULL,
     status VARCHAR(20) NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'inactive')),
     created_at TIMESTAMP DEFAULT NOW(),
@@ -35,8 +36,8 @@ CREATE TABLE IF NOT EXISTS users (
 );
 
 -- Indexing for Faster Queries
-CREATE INDEX idx_users_aadhaar ON users(aadhar_number);
-CREATE INDEX idx_users_phone ON users(mobile_number);
-CREATE INDEX idx_users_email ON users(email);
-CREATE INDEX idx_users_status ON users(registration_status);
+CREATE INDEX IF NOT EXISTS idx_users_aadhaar ON users(aadhar_number);
+CREATE INDEX IF NOT EXISTS idx_users_phone ON users(mobile_number);
+CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
+CREATE INDEX IF NOT EXISTS idx_users_status ON users(registration_status);
 

@@ -5,7 +5,6 @@ import path from "path";
 const runMigrations = async () => {
     const migrationDir = path.join(__dirname, "migrations");
     const orderFile = path.join(migrationDir, "migration_order.json");
-
     if (!fs.existsSync(orderFile)) {
         console.error("Migration order file not found!");
         process.exit(1);

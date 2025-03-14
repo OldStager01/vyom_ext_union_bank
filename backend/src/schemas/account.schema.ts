@@ -10,6 +10,7 @@ export const AccountSchema = z.object({
         }),
     product_id: z.string().uuid(),
     account_number: z.string().min(1).max(20),
+    branch_id: z.string().uuid(),
     account_type: z.enum(["savings", "current", "fixed_deposit"]),
     balance: z.number().nonnegative().default(0.0),
     status: z.enum(["active", "inactive", "closed", "frozen"]),

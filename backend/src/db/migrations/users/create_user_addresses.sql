@@ -11,10 +11,12 @@ CREATE TABLE IF NOT EXISTS user_addresses (
     street VARCHAR(255),
     house VARCHAR(255),
     landmark VARCHAR(255),
+    latitude DECIMAL(9, 6),
+    longitude DECIMAL(9, 6),
     created_at TIMESTAMP DEFAULT NOW(),
     updated_at TIMESTAMP DEFAULT NOW(),
     UNIQUE(user_id, address_type)
 );
 
-CREATE INDEX idx_addresses_user_id ON user_addresses(user_id);
-CREATE INDEX idx_addresses_pincode ON user_addresses(pincode);
+CREATE INDEX IF NOT EXISTS idx_addresses_user_id ON user_addresses(user_id);
+CREATE INDEX IF NOT EXISTS idx_addresses_pincode ON user_addresses(pincode);

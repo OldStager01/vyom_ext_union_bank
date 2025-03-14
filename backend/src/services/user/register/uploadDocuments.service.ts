@@ -8,9 +8,9 @@ import { ConflictError, UnauthorizedError } from "../../../utils/errors";
 import { getUser } from "../getUser.service";
 export async function uploadDocuments(id: string, files: DocumentFilesType) {
     try {
-        const aadhar = files.aadhar[0];
-        const pan = files.pan[0];
-        const signature = files.signature[0];
+        const aadhar = files.aadhar;
+        const pan = files.pan;
+        const signature = files.signature;
 
         // Update User
         // 1 AADHAR CARD
@@ -19,7 +19,7 @@ export async function uploadDocuments(id: string, files: DocumentFilesType) {
             {
                 user_id: id,
                 document_type: "aadhaar",
-                file_url: aadhar.path,
+                file_url: aadhar,
             }
         );
 
@@ -29,7 +29,7 @@ export async function uploadDocuments(id: string, files: DocumentFilesType) {
             {
                 user_id: id,
                 document_type: "pan",
-                file_url: pan.path,
+                file_url: pan,
             }
         );
 
@@ -39,7 +39,7 @@ export async function uploadDocuments(id: string, files: DocumentFilesType) {
             {
                 user_id: id,
                 document_type: "signature",
-                file_url: signature.path,
+                file_url: signature,
             }
         );
 

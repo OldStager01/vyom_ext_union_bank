@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import multer from "multer";
-import { CloudinaryStorage } from "multer-storage-cloudinary";
 import cloudinary from "../config/cloudinary";
 import { v4 as uuidv4 } from "uuid";
+import streamifier from "streamifier";
 import path from "path";
 
 // Middleware Configuration Type
@@ -13,29 +13,16 @@ interface UploadFieldConfig {
 
 interface UploadOptions {
     fields: UploadFieldConfig[];
-    acceptedTypes?: string[]; // Allowed MIME types
-    maxSize?: number; // Max file size in bytes
-    minSize?: number; // Min file size in bytes
-    folder?: string; // Custom folder in Cloudinary
+    acceptedTypes?: string[];
+    maxSize?: number;
+    minSize?: number;
+    folder?: string;
 }
 
-// Configure Cloudinary Storage
-const storage = new CloudinaryStorage({
-    cloudinary,
-    params: async (_req, file) => {
-        const fileExt = path.extname(file.originalname); // Extract extension
-        const uniqueFilename = `${uuidv4()}${fileExt}`; // Unique UUID filename
+// Configure Multer to Store Files in Memory (Avoid Disk Latency)
+const storage = multer.memoryStorage();
 
-        return {
-            folder: "union_bank", // Default folder (can be customized)
-            public_id: uniqueFilename, // Store with UUID
-            resource_type: "auto", // Supports images, videos, and raw files
-            transformation: [{ quality: "auto", fetch_format: "auto" }],
-        };
-    },
-});
-
-// Secure File Filter (Validates MIME Type & Size)
+// Secure File Filter
 const fileFilter = (
     acceptedTypes?: string[],
     minSize?: number,
@@ -71,6 +58,27 @@ const fileFilter = (
     };
 };
 
+// Cloudinary Upload Function (Streams Directly)
+const uploadToCloudinary = (buffer: Buffer, folder: string) => {
+    return new Promise((resolve, reject) => {
+        const uniqueFilename = `${uuidv4()}${Date.now()}`;
+        const stream = cloudinary.uploader.upload_stream(
+            {
+                folder,
+                public_id: uniqueFilename,
+                resource_type: "auto",
+                chunk_size: 6000000, // Enable chunked upload for large files
+                transformation: [{ quality: "auto", fetch_format: "auto" }],
+            },
+            (error, result) => {
+                if (error) reject(error);
+                else resolve(result);
+            }
+        );
+        streamifier.createReadStream(buffer).pipe(stream);
+    });
+};
+
 // Dynamic Middleware for Secure File Uploads
 export const uploadDynamicFiles = (options: UploadOptions) => {
     const upload = multer({
@@ -80,31 +88,48 @@ export const uploadDynamicFiles = (options: UploadOptions) => {
             options.minSize,
             options.maxSize
         ),
-        limits: { fileSize: options.maxSize }, // Max file size validation
+        limits: { fileSize: options.maxSize },
     });
 
-    return (req: Request, res: Response, next: NextFunction) => {
-        upload.fields(options.fields)(req, res, (err) => {
+    return async (req: Request, res: Response, next: NextFunction) => {
+        upload.fields(options.fields)(req, res, async (err) => {
             if (err) return res.status(400).json({ error: err.message });
+
             if (!req.files)
                 return res.status(400).json({ error: "No files uploaded" });
 
-            // ✅ Extract Secure File URLs Dynamically
-            const fileUrls: Record<string, string | string[]> = {};
-            for (const field of options.fields) {
-                const uploadedFiles = (
-                    req.files as Record<string, Express.Multer.File[]>
-                )[field.name];
-                if (uploadedFiles) {
-                    fileUrls[field.name] =
-                        uploadedFiles.length > 1
-                            ? uploadedFiles.map((file) => file.path) // Multiple files → Array
-                            : uploadedFiles[0].path; // Single file → String
-                }
-            }
+            try {
+                const fileUrls: Record<string, string | string[]> = {};
 
-            req.body.fileUrls = fileUrls;
-            next();
+                for (const field of options.fields) {
+                    const uploadedFiles = (
+                        req.files as Record<string, Express.Multer.File[]>
+                    )[field.name];
+
+                    if (uploadedFiles) {
+                        const uploadPromises = uploadedFiles.map((file) =>
+                            uploadToCloudinary(
+                                file.buffer,
+                                options.folder || "union_bank"
+                            )
+                        );
+
+                        const results = await Promise.all(uploadPromises);
+                        fileUrls[field.name] =
+                            results.length > 1
+                                ? results.map(
+                                      (result: any) => result.secure_url
+                                  )
+                                : (results[0] as any).secure_url;
+                    }
+                }
+
+                req.body.fileUrls = fileUrls;
+                next();
+            } catch (error) {
+                console.error("Cloudinary Upload Error:", error);
+                return res.status(500).json({ error: "File upload failed" });
+            }
         });
     };
 };

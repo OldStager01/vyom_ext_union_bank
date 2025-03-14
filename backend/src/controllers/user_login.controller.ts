@@ -90,11 +90,27 @@ export async function phoneControllerVerify(
         res.setHeader("x-access-token", accessToken);
         res.setHeader("x-refresh-token", refreshToken);
 
-        ApiResponse.send(res, 200, "Phone Verified", {
+        type ResDataType = {
+            id: string;
+            mobile_number: string;
+            next_step: string;
+            facial_embeddings?: number[];
+        };
+
+        const data: ResDataType = {
             id: authUser.id,
-            mobile_number: authUser.mobile_number,
-            next_step: authUser.registration_status,
-        });
+            mobile_number: authUser.mobile_number as string,
+            next_step: authUser.registration_status as string,
+        };
+
+        if (
+            authUser.registration_status === "completed" &&
+            authUser.facial_embedding
+        ) {
+            data.facial_embeddings = authUser.facial_embedding;
+        }
+
+        ApiResponse.send(res, 200, "Phone Verified", data);
 
         return;
     } catch (error) {

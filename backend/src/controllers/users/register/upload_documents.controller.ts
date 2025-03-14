@@ -14,13 +14,14 @@ export const uploadDocumnentsController = async (
         const id = req?.user?.id;
         if (!id) throw new UnauthorizedError("Unauthorized: No user found");
 
-        const files = req.files as unknown as DocumentFilesType;
+        const files = req.body.fileUrls as unknown as DocumentFilesType;
 
         if (!files) throw new ValidationError("Files are required");
 
         if (!files.aadhar || !files.pan || !files.signature) {
             throw new ValidationError("All files are required");
         }
+        console.log(req.body.fileUrls);
 
         // TODO: VERIFY THE DOCUMENTS USING AI
 

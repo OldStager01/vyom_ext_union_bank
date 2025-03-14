@@ -15,3 +15,18 @@ CREATE TABLE IF NOT EXISTS employees (
     created_at TIMESTAMP DEFAULT NOW(),
     updated_at TIMESTAMP DEFAULT NOW()
 );
+
+
+-- feedback{
+--     id,
+--     employee_id,
+--     branch_id,
+--     behaviour,
+--     communication,
+--     satisfaction,
+--     overall_rating,
+--     comment: "Good Service $$ Excellent $$ Bad Tone $$ "
+-- }
+
+-- -- 1 Employee : 50 Services: Data Agrregated in Numbers
+

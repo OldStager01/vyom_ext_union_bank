@@ -9,3 +9,9 @@ ALTER TABLE accounts
     FOREIGN KEY (product_id)
     REFERENCES account_products(id)
     ON DELETE CASCADE;
+
+ALTER TABLE accounts
+    ADD CONSTRAINT fk_branch_id
+    FOREIGN KEY (branch_id)
+    REFERENCES branches(id)
+    ON DELETE CASCADE;
