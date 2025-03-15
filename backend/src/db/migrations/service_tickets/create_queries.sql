@@ -9,5 +9,6 @@ CREATE TABLE queries (
     transcript TEXT, 
     category VARCHAR(255), 
     sub_category VARCHAR(255), 
+    status VARCHAR(255) CHECK (status IN ('processing', 'completed', 'failed')) DEFAULT 'processing',
     created_at TIMESTAMP DEFAULT NOW()
 );

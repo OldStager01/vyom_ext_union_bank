@@ -11,5 +11,6 @@ export const querySchema = z.object({
     transcript: z.string().optional(),
     category: z.string().optional(),
     sub_category: z.string().optional(),
+    status: z.enum(["processing", "completed", "failed"]).optional(),
     created_at: z.date().optional(),
 });

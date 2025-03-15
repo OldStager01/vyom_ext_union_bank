@@ -1,6 +1,5 @@
 import { createRecord } from "../../../db/models/records";
 import { tables } from "../../../db/tables";
-import { querySchema } from "../../../schemas/query.schema";
 import { QuerySchemaType } from "../../../types/tables/query.type";
 import { UnauthorizedError, ValidationError } from "../../../utils/errors";
 import { getUser } from "../getUser.service";
@@ -36,7 +35,6 @@ export const queryUploadService = async ({
         branch_id: branchId,
         query_type: query_type as "text" | "predefined" | "video",
     };
-    let shouldAnalyse = false;
 
     if (!video_url && !query_text && !predefined_query) {
         throw new ValidationError(
@@ -47,21 +45,23 @@ export const queryUploadService = async ({
     // Case 1 : Video Query: Send for analysis at AIML server.
     if (query_type === "video") {
         query.video_url = video_url;
-        shouldAnalyse = true;
+        if (query_text) {
+            query.query_text = query_text;
+        }
     }
     // Case 2 : Text Query: Send for analysis at AIML server.
     else if (query_type === "text") {
         query.query_text = query_text;
-        shouldAnalyse = true;
     }
     // Case 3 : Predefined Query: Create a service ticket.
     else if (query_type === "predefined") {
         query.predefined_query = predefined_query;
-        query.category = category;
-        query.sub_category = sub_category;
+        // query.category = category;
+        // query.sub_category = sub_category;
     } else {
         throw new ValidationError("Invalid query type");
     }
+    query.status = "processing";
     const result = await createRecord<Partial<QuerySchemaType>>(
         tables.queries,
         query
@@ -71,9 +71,10 @@ export const queryUploadService = async ({
     const combinedData = await getCombinedData(user_id as string);
     const userData = { ...combinedData, query_id: queryId };
     console.log(userData);
-    if (shouldAnalyse) {
-        // Send for analysis at AIML server.
-    } else {
-        // Create a service ticket.
-    }
 };
+
+/*
+forward = ['branch','central_office']
+department: ['operations','loans']
+sub_department: ['account_support','customer_support','kyc_agent','operations_manager','operations_lead','loan_officer','branch_support','loans_manager','loans_lead']
+*/
