@@ -10,10 +10,34 @@ CREATE TABLE IF NOT EXISTS employees (
     password VARCHAR(255) NOT NULL,
     spoken_languages VARCHAR(100)[] NOT NULL,
     refresh_token VARCHAR(255) DEFAULT NULL,
-    role VARCHAR(50) NOT NULL CHECK (
-        CASE 
-            WHEN department = 'operations' THEN role IN ('account_support', 'customer_support', 'kyc_agent', 'operations_manager', 'operations_lead')
-            WHEN department = 'loans' THEN role IN ('loan_officer', 'branch_support', 'loans_manager', 'loans_lead')
+    roles VARCHAR(50)[] NOT NULL CHECK (
+        CASE department
+            WHEN 'operations' THEN roles <@ ARRAY[
+                'central',
+                'account_services',
+                'address_changes',
+                'contact_details',
+                'identity_updates',
+                'certificates',
+                'name_changes',
+                'cash_services',
+                'card_services',
+                'security',
+                'general',
+                'cheque_services'
+            ]::VARCHAR(50)[]
+            WHEN 'loans' THEN roles <@ ARRAY[
+                'central',
+                'loans_general',
+                'home_loan',
+                'vehicle_loan',
+                'educational_loan',
+                'personal_loan',
+                'loan_against_property',
+                'senior_citizen_loans',
+                'gold_loan',
+                'interest_rates'
+            ]::VARCHAR(50)[]
             ELSE false
         END
     ),

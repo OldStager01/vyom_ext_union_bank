@@ -6,9 +6,9 @@ CREATE TABLE queries (
     query_text TEXT,  -- Stores textual queries
     predefined_query VARCHAR(255),  -- If it's a predefined question
     video_url TEXT,
-    transcript TEXT, 
-    category VARCHAR(255), 
-    sub_category VARCHAR(255), 
+    transcribed_text TEXT,
+    translated_text TEXT,
     status VARCHAR(255) CHECK (status IN ('processing', 'completed', 'failed')) DEFAULT 'processing',
-    created_at TIMESTAMP DEFAULT NOW()
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
 );

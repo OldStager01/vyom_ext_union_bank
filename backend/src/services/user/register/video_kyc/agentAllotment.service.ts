@@ -11,7 +11,10 @@ export async function agentAllotment(id: string, language: string) {
     try {
         const employees = await query(
             `SELECT * FROM ${tables.employees} as t1
-                    WHERE role = 'kyc_agent' AND status = 'active' AND $1 = ANY (spoken_languages)
+                    WHERE 'identity_updates' = ANY(roles) 
+                    AND department = 'operations'
+                    AND status = 'active' 
+                    AND $1 = ANY (spoken_languages)
                     ORDER BY (
                         SELECT COUNT(*) FROM ${tables.videoKYCSessions} as t2 WHERE t2.agent_id = t1.id
                     ) ASC

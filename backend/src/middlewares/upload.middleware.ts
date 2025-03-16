@@ -107,7 +107,6 @@ export const uploadDynamicFiles = (options: UploadOptions) => {
                     const uploadedFiles = (
                         req.files as Record<string, Express.Multer.File[]>
                     )[field.name];
-
                     if (uploadedFiles) {
                         const uploadPromises = uploadedFiles.map((file) =>
                             uploadToCloudinary(

@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { queryUploadController } from "../../../controllers/users/serviceTickets/query.controller";
 import { uploadDynamicFiles } from "../../../middlewares/upload.middleware";
-
+import { createServiceTicketController } from "../../../controllers/users/serviceTickets/create_service_ticket.controller";
 const router = Router();
 
 const upload = () => {
@@ -17,5 +17,6 @@ const upload = () => {
 };
 
 router.post("/query", upload(), queryUploadController);
+router.post("/create", createServiceTicketController);
 
 export default router;

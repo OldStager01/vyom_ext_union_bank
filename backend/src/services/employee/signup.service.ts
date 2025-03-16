@@ -11,7 +11,7 @@ export async function signUpEmployee(
     email: string,
     phone: string,
     pass: string,
-    role: string,
+    roles: string[],
     department: string,
     spoken_languages: string[]
 ) {
@@ -29,7 +29,7 @@ export async function signUpEmployee(
             email,
             phone,
             password,
-            role,
+            roles,
             department,
             spoken_languages,
         });

@@ -12,23 +12,14 @@ export const queryUploadController = async (
     const id = req?.user?.id;
     if (!id) throw new UnauthorizedError("Unauthorized: No user found");
     try {
-        const {
-            query_type,
-            query_text,
-            predefined_query,
-            category,
-            sub_category,
-        } = req.body;
-        const file = req.body?.fileUrls[0];
-
+        const { query_type, query_text, predefined_query } = req.body;
+        const file = req.body?.fileUrls?.video;
         await queryUploadService({
             user_id: id,
             query_type,
             query_text,
-            predefined_query,
-            category,
-            sub_category,
             video_url: file,
+            predefined_query,
         });
 
         ApiResponse.send(res, 200, "Query uploaded successfully");

@@ -20,7 +20,7 @@ export const employeeSignUpController = async (
             email,
             phone,
             password,
-            role,
+            roles,
             department,
             spoken_languages,
         } = req.body;
@@ -30,7 +30,8 @@ export const employeeSignUpController = async (
             !email ||
             !phone ||
             !password ||
-            !role ||
+            !roles ||
+            roles.length === 0 ||
             !department ||
             !Array.isArray(spoken_languages) ||
             spoken_languages.length === 0
@@ -43,7 +44,7 @@ export const employeeSignUpController = async (
             email,
             phone,
             password,
-            role,
+            roles,
             department,
             spoken_languages
         );
