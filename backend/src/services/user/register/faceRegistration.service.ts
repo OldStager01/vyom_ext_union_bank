@@ -12,7 +12,7 @@ export async function registerFace(id: string, facial_embedding: string) {
         }
         if (facial_embedding.length !== EMBEDDING_LENGTH) {
             throw new ValidationError(
-                "Facial Embedding should be of length 128"
+                `Facial Embedding should be of length ${EMBEDDING_LENGTH}`
             );
         }
 

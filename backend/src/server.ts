@@ -26,8 +26,15 @@ app.use(helmet());
 app.use(compression());
 
 // CORS Middleware
-app.use(cors({ origin: env.CORS_ORIGIN, credentials: true }));
-
+// app.use(cors({ origin: env.CORS_ORIGIN || ["*"], credentials: true }));
+app.use(
+    cors({
+        origin: "*", // Allow requests from all origins
+        credentials: true, // This is important for handling credentials
+        methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], // Allowed methods
+        allowedHeaders: ["Content-Type", "Authorization"], // Allowed headers
+    })
+);
 // Static Middleware
 app.use(express.static("public"));
 

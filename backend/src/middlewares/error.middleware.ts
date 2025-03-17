@@ -19,7 +19,6 @@ export function errorHandler(
         path: req.originalUrl,
         method: req.method,
     });
-
     res.status(statusCode).json({
         status: "error",
         message,

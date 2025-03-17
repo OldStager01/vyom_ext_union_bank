@@ -49,6 +49,7 @@ const authMiddleware = async (
             throw new ForbiddenError("Forbidden: Invalid access token");
         }
     } catch (error) {
+        console.log(error);
         next(error);
     }
 };

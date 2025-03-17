@@ -9,6 +9,7 @@ export const queryUploadController = async (
     res: Response,
     next: NextFunction
 ) => {
+    console.log(req.body);
     const id = req?.user?.id;
     if (!id) throw new UnauthorizedError("Unauthorized: No user found");
     try {
@@ -24,6 +25,7 @@ export const queryUploadController = async (
 
         ApiResponse.send(res, 200, "Query uploaded successfully");
     } catch (error) {
+        console.log(error);
         next(error);
     }
 };

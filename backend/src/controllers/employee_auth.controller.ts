@@ -108,5 +108,7 @@ export const employeeLogInController = async (
     );
     res.setHeader("x-access-token", accessToken);
     res.setHeader("x-refresh-token", refreshToken);
-    ApiResponse.send(res, 200, "Logged In");
+    ApiResponse.send(res, 200, "Logged In", {
+        user: employee[0],
+    });
 };

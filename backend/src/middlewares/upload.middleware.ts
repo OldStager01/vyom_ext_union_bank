@@ -71,8 +71,10 @@ const uploadToCloudinary = (buffer: Buffer, folder: string) => {
                 transformation: [{ quality: "auto", fetch_format: "auto" }],
             },
             (error, result) => {
-                if (error) reject(error);
-                else resolve(result);
+                if (error) {
+                    console.log(error);
+                    reject(error);
+                } else resolve(result);
             }
         );
         streamifier.createReadStream(buffer).pipe(stream);
@@ -93,7 +95,9 @@ export const uploadDynamicFiles = (options: UploadOptions) => {
 
     return async (req: Request, res: Response, next: NextFunction) => {
         upload.fields(options.fields)(req, res, async (err) => {
-            if (err) return res.status(400).json({ error: err.message });
+            if (err){ 
+                console.log(err)
+                return res.status(400).json({ error: err.message });}
 
             if (!req.files) {
                 req.body.fileUrls = [];

@@ -49,6 +49,9 @@ export const queryUploadService = async ({
             if (query_text) {
                 query.query_text = query_text;
             }
+            if (predefined_query) {
+                query.predefined_query = predefined_query;
+            }
         }
         // Case 2 : Text Query: Send for analysis at AIML server.
         else if (query_type === "text" && query_text) {
@@ -59,6 +62,9 @@ export const queryUploadService = async ({
             query.predefined_query = predefined_query;
             if (query_text) {
                 query.query_text = query_text;
+            }
+            if (video_url) {
+                query.video_url = video_url;
             }
         } else {
             throw new ValidationError("Invalid query type");
@@ -75,10 +81,10 @@ export const queryUploadService = async ({
         console.log(userData);
         // Send the user data to the AIML server.
         // const aimlResponse = await axios.post(
-        //     `${env.AIML_SERVER_URL}/process_video`,
+        //     `${env.AIML_SERVER_URL}/process_query`,
         //     userData
         // );
-        // console.log(aimlResponse);
+        // console.log(aimlResponse.data);
     } catch (error) {
         console.log(error);
         throw error;
