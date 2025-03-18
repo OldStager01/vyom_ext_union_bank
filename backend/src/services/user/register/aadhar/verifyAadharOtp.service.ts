@@ -1,3 +1,4 @@
+import env from "../../../../config/env";
 import {
     createRecord,
     getRecords,
@@ -7,6 +8,7 @@ import { tables } from "../../../../db/tables";
 import { UserType } from "../../../../types/tables/user.type";
 import { UserAddressType } from "../../../../types/tables/user_addresses.type";
 import { ForbiddenError, ValidationError } from "../../../../utils/errors";
+import { getLatLongByPincode } from "../../../../utils/getLatLongByPincode";
 import { verifyOtp } from "../../../otp.service";
 import { getData } from "../../../redis/dataOperation";
 
@@ -22,7 +24,13 @@ export default async function verifyAadharOtp(
         const ref_id = await getData(aadhar_number);
 
         // TODO: Call Aadhar verification API: VERIFY OTP
-        const response = await demoAadharServer(ref_id, otp);
+        // const response = await demoAadharServer(ref_id, otp);
+
+        const response = await fetch(
+            `${env.CREDIT_BUREAU_API_URL}/aadhaar?aadhaar_number=${aadhar_number}`
+        ).then((res) => res.json());
+
+        console.log(response);
 
         if (!response) {
             throw new ValidationError("Invalid OTP");
@@ -34,15 +42,25 @@ export default async function verifyAadharOtp(
             .slice(-4)
             .padStart(12, "*");
         // Get the DOB
-        userUpdateObject.dob = new Date(response?.dob.split("T")[0]);
+        userUpdateObject.dob = new Date(
+            new Date(response?.personal_info?.dob).toDateString()
+        );
+        console.log(userUpdateObject.dob);
         // Get the gender
-        userUpdateObject.gender = response?.gender as "M" | "F" | "Other";
+        userUpdateObject.gender = response?.personal_info?.gender as
+            | "M"
+            | "F"
+            | "Other";
         // Get the email
-        if (response.email && response.email !== "") {
-            userUpdateObject.email = response.email;
+        if (
+            response?.personal_info?.email &&
+            response?.personal_info?.email !== ""
+        ) {
+            userUpdateObject.email = response?.personal_info?.email;
         }
         // Get photo link
-        userUpdateObject.aadhar_photo_link = response?.photo_link;
+        userUpdateObject.aadhar_photo_link =
+            response?.personal_info?.photo_link;
         // Set Registration Status to other
         userUpdateObject.registration_status = "other";
         // Updated at
@@ -59,7 +77,7 @@ export default async function verifyAadharOtp(
         });
 
         // Update the address
-        const addressResponse = response.split_address;
+        const addressResponse = response.address_info.split_address;
         const userAddressObject: Partial<UserAddressType> = {
             address_type: "permanent",
         };
@@ -69,11 +87,20 @@ export default async function verifyAadharOtp(
         userAddressObject.state = addressResponse.state;
         userAddressObject.district = addressResponse.dist;
         userAddressObject.city = addressResponse.vtc;
-        userAddressObject.po = addressResponse.po;
         userAddressObject.pincode = addressResponse.pincode;
         userAddressObject.street = addressResponse.street;
         userAddressObject.house = addressResponse.house;
-        userAddressObject.landmark = addressResponse.landmark;
+
+        // GET the lat and long of the pincode
+        const { latitude, longitude } = await getLatLongByPincode(
+            addressResponse.pincode
+        );
+
+        userAddressObject.latitude = latitude;
+        userAddressObject.longitude = longitude;
+
+        console.log("Latitude: ", latitude);
+        console.log("Longitude: ", longitude);
 
         await createRecord<Partial<UserAddressType>>(
             tables.userAddresses,
@@ -103,7 +130,7 @@ const demoAadharServer = async (ref_id: string, otp: string) => {
                 dist: "Haveri",
                 house: "Shri Kanaka Nilaya",
                 landmark: "",
-                pincode: "581115",
+                pincode: "422012",
                 po: "Ranebennur",
                 state: "Karnataka",
                 street: "Umashankar Nagar 1st Main 5th Cross",

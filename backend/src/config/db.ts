@@ -1,4 +1,4 @@
-import { Pool, QueryResultRow } from "pg";
+import { Pool, QueryResultRow, PoolClient } from "pg";
 import env from "./env";
 const pool = new Pool({
     connectionString:
@@ -34,10 +34,12 @@ const transaction = async <T extends QueryResultRow>(
     try {
         await client.query("BEGIN"); // Start the transaction
         const results: T[][] = [];
+        let counter = 0;
         for (const command of commands) {
             const { text, params } = command;
             const result = await client.query<T>(text, params);
             results.push(result.rows);
+            console.log(++counter);
         }
         await client.query("COMMIT"); // Commit the transaction
         return results;
@@ -49,4 +51,27 @@ const transaction = async <T extends QueryResultRow>(
         client.release();
     }
 };
-export { query, transaction };
+
+const startTransaction = async () => {
+    const client = await pool.connect();
+    await client.query("BEGIN");
+    return client;
+};
+
+const commitTransaction = async (client: PoolClient) => {
+    await client.query("COMMIT");
+    client.release();
+};
+
+const rollbackTransaction = async (client: PoolClient) => {
+    await client.query("ROLLBACK");
+    client.release();
+};
+
+export {
+    query,
+    transaction,
+    startTransaction,
+    commitTransaction,
+    rollbackTransaction,
+};

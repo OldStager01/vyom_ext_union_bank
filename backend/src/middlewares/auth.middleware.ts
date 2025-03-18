@@ -3,6 +3,8 @@ import jwt from "jsonwebtoken";
 import env from "../config/env";
 import { AuthRequest } from "../types/authRequest.type";
 import { UnauthorizedError, ForbiddenError } from "../utils/errors";
+import { getUser } from "../services/user/getUser.service";
+import { getEmployee } from "../services/employee/getEmployee.service";
 
 // Middleware for verifying access tokens
 const authMiddleware = async (
@@ -11,7 +13,11 @@ const authMiddleware = async (
     next: NextFunction
 ) => {
     try {
-        const authHeader = req.headers.authorization;
+        let authHeader = req.headers.authorization;
+        if (!authHeader) {
+            authHeader = req.cookies.accessToken;
+        }
+        console.log("authHeader", authHeader);
         if (!authHeader || !authHeader.startsWith("Bearer ")) {
             throw new UnauthorizedError("Unauthorized: No access token found");
         }
@@ -22,8 +28,21 @@ const authMiddleware = async (
             const decoded = jwt.verify(
                 accessToken,
                 env.ACCESS_TOKEN_SECRET as string
-            ) as { id: string };
-            req.user = { id: decoded.id };
+            ) as { id: string; role: string };
+            if (decoded.role === "user") {
+                const user = await getUser(decoded.id);
+                if (user.length === 0) {
+                    throw new UnauthorizedError("Invalid Token");
+                }
+            } else if (decoded.role === "employee") {
+                const employee = await getEmployee(decoded.id);
+                if (employee.length === 0) {
+                    throw new UnauthorizedError("Invalid Token");
+                }
+            } else {
+                throw new UnauthorizedError("Invalid Token");
+            }
+            req.user = { id: decoded.id, role: decoded.role };
             return next();
         } catch (err) {
             if (err instanceof jwt.TokenExpiredError) {
@@ -33,6 +52,7 @@ const authMiddleware = async (
             throw new ForbiddenError("Forbidden: Invalid access token");
         }
     } catch (error) {
+        console.log(error);
         next(error);
     }
 };

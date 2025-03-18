@@ -13,8 +13,24 @@ const UserAddressSchema = z.object({
     street: z.string().min(0).max(255).optional(),
     house: z.string().min(0).max(255).optional(),
     landmark: z.string().min(0).max(255).optional(),
-    created_at: z.date().default(() => new Date()),
-    updated_at: z.date().default(() => new Date()),
+    latitude: z
+        .number()
+        .min(-90, "Latitude must be between -90 and 90")
+        .max(90, "Latitude must be between -90 and 90")
+        .optional(),
+    longitude: z
+        .number()
+        .min(-180, "Longitude must be between -180 and 180")
+        .max(180, "Longitude must be between -180 and 180")
+        .optional(),
+    created_at: z
+        .date()
+        .default(() => new Date())
+        .optional(),
+    updated_at: z
+        .date()
+        .default(() => new Date())
+        .optional(),
 });
 
 export { UserAddressSchema };

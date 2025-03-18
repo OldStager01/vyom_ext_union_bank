@@ -48,6 +48,7 @@ export const UserSchema = z.object({
         "vkyc",
         "completed",
     ]),
+    branch_id: z.string().uuid().optional(),
     refresh_token: z.string().nullable(),
     status: z.enum(["active", "inactive"]),
     created_at: z.date().default(() => new Date()),
@@ -81,5 +82,6 @@ export const registrationStatusOptions = [
     "document",
     "other",
     "vkyc",
+    "account",
     "completed",
 ] as const;

@@ -11,7 +11,7 @@ export type FileDetailsType = {
 };
 
 export type DocumentFilesType = {
-    aadhar: FileDetailsType[];
-    pan: FileDetailsType[];
-    signature: FileDetailsType[];
+    aadhar: string;
+    pan: string;
+    signature: string;
 };

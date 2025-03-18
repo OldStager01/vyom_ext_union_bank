@@ -10,7 +10,7 @@ import env from "./config/env";
 import { runMigrations } from "./db/init";
 
 import v1Router from "./routes/v1";
-import { uploadDynamicFiles } from "./middlewares/uploadMiddleware";
+import { uploadDynamicFiles } from "./middlewares/upload.middleware";
 import { ApiResponse } from "./utils/ApiResponse";
 import { NotFoundError } from "./utils/errors";
 // Load environment variables
@@ -26,8 +26,21 @@ app.use(helmet());
 app.use(compression());
 
 // CORS Middleware
-app.use(cors({ origin: env.CORS_ORIGIN, credentials: true }));
-
+// app.use(cors({ origin: env.CORS_ORIGIN || ["*"], credentials: true }));
+app.use(
+    cors({
+        origin: (origin, callback) => {
+            if (origin === undefined || origin.includes("localhost:3001")) {
+                callback(null, true);
+            } else {
+                callback(new Error("Not allowed by CORS"));
+            }
+        },
+        credentials: true,
+        methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        allowedHeaders: ["Content-Type", "Authorization"],
+    })
+);
 // Static Middleware
 app.use(express.static("public"));
 
@@ -73,6 +86,7 @@ app.get("/test", async (req: Request, res: Response) => {
 });
 app.post("/test", upload(), async (req: Request, res: Response) => {
     res.status(200).json({ message: "Hello, World!", data: req.files });
+    return;
 });
 
 // 404 Handler
