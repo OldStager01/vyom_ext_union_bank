@@ -40,8 +40,8 @@ router.use(
 
 router.use(
     "/service-tickets",
-    authMiddleware,
-    userTypeMiddleware("user"),
+    // authMiddleware,
+    // userTypeMiddleware("user"),
     serviceTicketsRouter
 );
 router.use("/account-products", accountProductsRouter);

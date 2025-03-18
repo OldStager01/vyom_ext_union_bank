@@ -1,4 +1,4 @@
-import { Pool, QueryResultRow } from "pg";
+import { Pool, QueryResultRow, PoolClient } from "pg";
 import env from "./env";
 const pool = new Pool({
     connectionString:
@@ -51,4 +51,27 @@ const transaction = async <T extends QueryResultRow>(
         client.release();
     }
 };
-export { query, transaction };
+
+const startTransaction = async () => {
+    const client = await pool.connect();
+    await client.query("BEGIN");
+    return client;
+};
+
+const commitTransaction = async (client: PoolClient) => {
+    await client.query("COMMIT");
+    client.release();
+};
+
+const rollbackTransaction = async (client: PoolClient) => {
+    await client.query("ROLLBACK");
+    client.release();
+};
+
+export {
+    query,
+    transaction,
+    startTransaction,
+    commitTransaction,
+    rollbackTransaction,
+};

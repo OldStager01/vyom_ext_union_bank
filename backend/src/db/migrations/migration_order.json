@@ -4,6 +4,7 @@
     "users/create_user_kyc_documents.sql",
     "users/create_user_otps.sql",
     "employees/create_employees.sql",
+    "employees/roles.sql",
     "video_kyc_sessions/create_video_kyc_sessions.sql",
     "branches/create_branches.sql",
     "accounts/create_account_products.sql",
@@ -31,5 +32,7 @@
     "feedbacks/fk_feedbacks.sql",
     "users/fk_user_credit_bureau_data.sql",
     "service_tickets/fk_queries.sql",
-    "branches/trig_nearest_branch.sql"
+    "branches/trig_nearest_branch.sql",
+    "employees/employee_roles.sql",
+    "service_tickets/create_service_tickets_view.sql"
 ]

@@ -3,7 +3,11 @@ import {
     phoneControllerSend,
     phoneControllerVerify,
 } from "../../../controllers/users/register/index";
-import { refreshToken } from "../../../controllers/auth.controller";
+import {
+    getUserController,
+    refreshToken,
+} from "../../../controllers/auth.controller";
+import authMiddleware from "../../../middlewares/auth.middleware";
 
 const router = Router();
 

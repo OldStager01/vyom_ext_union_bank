@@ -80,11 +80,11 @@ export const queryUploadService = async ({
         const userData = { ...combinedData, ...query, query_id: queryId };
         console.log(userData);
         // Send the user data to the AIML server.
-        // const aimlResponse = await axios.post(
-        //     `${env.AIML_SERVER_URL}/process_query`,
-        //     userData
-        // );
-        // console.log(aimlResponse.data);
+        const aimlResponse = await axios.post(
+            `${env.AIML_SERVER_URL}/process_query`,
+            userData
+        );
+        console.log(aimlResponse.data);
     } catch (error) {
         console.log(error);
         throw error;

@@ -4,7 +4,7 @@ CREATE TABLE queries (
     branch_id UUID, -- Handles branch-specific tickets
     query_type VARCHAR(50) CHECK (query_type IN ('text', 'predefined', 'video')) NOT NULL,
     query_text TEXT,  -- Stores textual queries
-         VARCHAR(255),  -- If it's a predefined question
+    predefined_query VARCHAR(255),  -- If it's a predefined question
     video_url TEXT,
     transcribed_text TEXT,
     translated_text TEXT,

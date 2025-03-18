@@ -7,28 +7,26 @@ import { tables } from "../../../db/tables";
 import { ServiceTicketType } from "../../../types/tables/service_ticket.type";
 import { ValidationError } from "../../../utils/errors";
 import { QuerySchemaType } from "../../../types/tables/query.type";
-import { query } from "../../../config/db";
-import { assignEmployee } from "./assignEmployee";
+import { assignEmployee } from "./assignEmployee.service";
+import { RoleType } from "../../../types/tables/role.type";
+import { EmployeeType } from "../../../types/tables/employee.type";
 
 type QueryType = "text" | "video" | "predefined";
 
-export async function createServiceTicketService({
-    query_id,
-    priority,
-    query_type,
-    routing_destination,
-    department,
-    service_type,
-    request_category,
-    translated_text,
-    transcribed_text,
-    language,
-}: Partial<ServiceTicketType> & {
-    transcribed_text?: string;
-    translated_text?: string;
-    language?: string;
-    query_type: QueryType;
-}) {
+export async function createServiceTicketService(
+    query_id: string,
+    department: string,
+    service_type: string,
+    request_category: string,
+    priority: string,
+    query_type: QueryType,
+    appointment_type: string,
+    role: string,
+    transcribed_text: string,
+    translated_text: string,
+    language: string,
+    user_id: string
+) {
     try {
         //* 1. Check if the query exists
         const queries = await getRecords<QuerySchemaType>(tables.queries, {
@@ -43,12 +41,32 @@ export async function createServiceTicketService({
         if (!queries || queries.length === 0) {
             throw new ValidationError("Query not found");
         }
-        const user_id = queries[0]?.user_id;
-        const branch_id = queries[0]?.branch_id;
-        const isBranch = routing_destination === "branch";
+        const query = queries[0];
+        // const user_id = query?.user_id;
+        const branch_id = query?.branch_id;
+
+        //* Get Role ID
+        const role_ids = await getRecords<RoleType>(tables.roles, {
+            where: [
+                {
+                    column: "role_name",
+                    operator: "=",
+                    value: role,
+                },
+            ],
+        });
+        console.log("role");
+        console.log(role_ids);
+        if (!role_ids || role_ids.length === 0) {
+            throw new ValidationError("Role not found");
+        }
+        const role_id = role_ids[0]?.role_id;
+        if (!role_id) {
+            throw new ValidationError("Role ID not found");
+        }
 
         //* 2. Update the query status to "completed" and add the transcribed and translated text
-        const updatedQuery = await updateRecord<QuerySchemaType>(
+        await updateRecord<QuerySchemaType>(
             tables.queries,
             {
                 id: query_id,
@@ -67,23 +85,78 @@ export async function createServiceTicketService({
             }
         );
 
-        //* 3. Assign an employee to the service ticket
+        //* 3. Create a new service ticket
+        const service_ticket = await createRecord<Partial<ServiceTicketType>>(
+            tables.serviceTickets,
+            {
+                query_id,
+                department: department as "loan" | "operations",
+                service_type,
+                request_category,
+                ticket_priority: priority as
+                    | "low"
+                    | "medium"
+                    | "high"
+                    | "critical",
+            }
+        );
+        console.log(service_ticket);
+
+        //* 4. Assign an employee to the service ticket
         const employee_id = await assignEmployee(
             department as string,
             service_type as string,
             branch_id as string,
             language as string,
-            isBranch
+            role_id as number,
+            user_id as string
         );
-
-        //* If no employee is found, throw an error
-        if (employee_id == null) {
-            throw new ValidationError("No employee found");
+        if (!employee_id) {
+            // TODO: Add to queue
+            return;
         }
 
-        console.log(employee_id);
+        const employees = await getRecords<EmployeeType>(tables.employees, {
+            where: [
+                {
+                    column: "id",
+                    operator: "=",
+                    value: employee_id,
+                },
+            ],
+        });
 
-        //* 4. Create the service ticket
+        const employee = employees[0];
+        if (!employee) {
+            throw new ValidationError("Employee not found");
+        }
+
+        const updatedServiceTicket: Partial<ServiceTicketType> = {
+            assigned_to: employee_id,
+            assigned_branch: employee.branch_id,
+            assigned_role_id: role_id,
+        };
+        if (appointment_type) {
+            updatedServiceTicket.appointment_type = appointment_type as
+                | "chat"
+                | "audio"
+                | "video"
+                | "email"
+                | "sms";
+        }
+        await updateRecord<ServiceTicketType>(
+            tables.serviceTickets,
+            updatedServiceTicket,
+            {
+                where: [
+                    {
+                        column: "id",
+                        operator: "=",
+                        value: service_ticket[0].id,
+                    },
+                ],
+            }
+        );
     } catch (error) {
         throw error;
     }

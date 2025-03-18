@@ -29,10 +29,16 @@ app.use(compression());
 // app.use(cors({ origin: env.CORS_ORIGIN || ["*"], credentials: true }));
 app.use(
     cors({
-        origin: "*", // Allow requests from all origins
-        credentials: true, // This is important for handling credentials
-        methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], // Allowed methods
-        allowedHeaders: ["Content-Type", "Authorization"], // Allowed headers
+        origin: (origin, callback) => {
+            if (origin === undefined || origin.includes("localhost:3001")) {
+                callback(null, true);
+            } else {
+                callback(new Error("Not allowed by CORS"));
+            }
+        },
+        credentials: true,
+        methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        allowedHeaders: ["Content-Type", "Authorization"],
     })
 );
 // Static Middleware

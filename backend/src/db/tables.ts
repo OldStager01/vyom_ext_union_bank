@@ -4,6 +4,8 @@ export const tables = {
     auditLogs: "audit_logs",
     branches: "branches",
     employees: "employees",
+    employee_roles: "employee_roles",
+    roles: "roles",
     feedbacks: "feedbacks",
     loans: "loans",
     queries: "queries",

@@ -11,8 +11,7 @@ export async function agentAllotment(id: string, language: string) {
     try {
         const employees = await query(
             `SELECT * FROM ${tables.employees} as t1
-                    WHERE 'identity_updates' = ANY(roles) 
-                    AND department = 'operations'
+                    WHERE 'call_center_agent' = ANY(SELECT role_name FROM ${tables.roles}) 
                     AND status = 'active' 
                     AND $1 = ANY (spoken_languages)
                     ORDER BY (

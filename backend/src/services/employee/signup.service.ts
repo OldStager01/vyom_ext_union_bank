@@ -11,8 +11,7 @@ export async function signUpEmployee(
     email: string,
     phone: string,
     pass: string,
-    roles: string[],
-    department: string,
+    roles: number[], // role_id
     spoken_languages: string[]
 ) {
     try {
@@ -29,8 +28,6 @@ export async function signUpEmployee(
             email,
             phone,
             password,
-            roles,
-            department,
             spoken_languages,
         });
         if (!employee.success) {
@@ -38,7 +35,20 @@ export async function signUpEmployee(
             throw new ValidationError();
         }
 
-        await createRecord(tables.employees, employee.data);
+        //* 1. Create employee
+        const employee_record = await createRecord(
+            tables.employees,
+            employee.data
+        );
+
+        //* 2. Create employee roles
+        const employee_roles_promise = roles.map(async (role_id) => {
+            await createRecord(tables.employee_roles, {
+                employee_id: employee_record[0].id,
+                role_id,
+            });
+        });
+        await Promise.all(employee_roles_promise);
     } catch (error) {
         throw error;
     }

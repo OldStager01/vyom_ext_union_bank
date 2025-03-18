@@ -2,6 +2,8 @@ import { NextFunction, Response } from "express";
 import { AuthRequest } from "../../../types/authRequest.type";
 import { InternalServerError } from "../../../utils/errors";
 import { createServiceTicketService } from "../../../services/user/serviceTicket/createServiceTicket.service";
+import { RoleName, RoleType } from "../../../types/tables/role.type";
+import { ApiResponse } from "../../../utils/ApiResponse";
 
 type Priority = "high" | "low" | "medium" | "critical";
 type RoutingDestination = "branch" | "central_office";
@@ -13,35 +15,42 @@ export const createServiceTicketController = async (
     next: NextFunction
 ) => {
     try {
-        const id = req?.user?.id;
+        console.log(req.body);
+
+        const user_id = req?.user?.id;
         const {
             query_id,
-            priority,
-            query_type,
-            success,
-            routing_destination,
             department,
             service_type,
             request_category,
+            priority,
+            query_type,
+            appointment_type, // !NEW: null | "chat" | "audio" | "video" | "email" | "sms"
+            role_name, // !NEW
             transcribed_text,
             translated_text,
-            language,
-        } = demoResponseVideo; //req.body;
+            detected_language,
+        } = req.body.ticket;
+        const success = req.body.success;
         if (!success) {
             throw new InternalServerError("Query failed to process");
         }
-        await createServiceTicketService({
+        await createServiceTicketService(
             query_id,
-            priority,
-            query_type,
-            routing_destination,
             department,
             service_type,
             request_category,
+            priority,
+            query_type,
+            appointment_type,
+            role_name,
             transcribed_text,
             translated_text,
-            language,
-        });
+            detected_language,
+            user_id as string
+        );
+
+        ApiResponse.send(res, 200, "Service ticket created successfully");
     } catch (error) {
         next(error);
     }
@@ -54,6 +63,8 @@ const demoResponseVideo = {
     success: true,
     timestamp: "2025-03-15T22:13:34.933770",
     routing_destination: "branch" as RoutingDestination,
+    appointment_type: "video" as RoleName,
+    role: "customer_service_rep",
     department: "operations" as Department,
     service_type: "identity_updates",
     request_category: "account_information",

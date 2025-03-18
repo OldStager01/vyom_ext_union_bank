@@ -21,33 +21,6 @@ export const EmployeeSchema = z.object({
         .min(10, "Phone number must be at least 10 digits long")
         .max(15, "Phone number must be at most 15 digits long"),
     password: z.string(),
-    department: z.enum(["operations", "loans"]),
-    roles: z.array(
-        z.enum([
-            // Operations roles
-            "account_services",
-            "address_changes",
-            "contact_details",
-            "identity_updates",
-            "certificates",
-            "name_changes",
-            "cash_services",
-            "card_services",
-            "security",
-            "general",
-            "cheque_services",
-            // Loans roles
-            "loans_general",
-            "home_loan",
-            "vehicle_loan",
-            "educational_loan",
-            "personal_loan",
-            "loan_against_property",
-            "senior_citizen_loans",
-            "gold_loan",
-            "interest_rates",
-        ])
-    ),
     spoken_languages: z.array(z.string()),
     refresh_token: z.string().nullable().optional(),
     status: z.enum(["active", "inactive", "terminated"]).default("active"),

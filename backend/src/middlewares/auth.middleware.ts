@@ -13,7 +13,10 @@ const authMiddleware = async (
     next: NextFunction
 ) => {
     try {
-        const authHeader = req.headers.authorization;
+        let authHeader = req.headers.authorization;
+        if (!authHeader) {
+            authHeader = req.cookies.accessToken;
+        }
         console.log("authHeader", authHeader);
         if (!authHeader || !authHeader.startsWith("Bearer ")) {
             throw new UnauthorizedError("Unauthorized: No access token found");

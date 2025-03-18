@@ -45,12 +45,10 @@ export async function createAccount(
             throw new ValidationError("Account product not found");
         }
 
-        const account_number = (crypto
-            .randomBytes(20)
+        const account_number = crypto
+            .randomBytes(10)
             .toString("hex")
-            .slice(0, 20),
-        16)
-            .toString()
+            .slice(0, 20)
             .padStart(20, "0");
 
         // Get the user's pincode
@@ -88,7 +86,7 @@ export async function createAccount(
         if (!branch_id) {
             throw new ValidationError("Branch not found");
         }
-
+        console.log(account_number);
         await createRecord<AccountType>(tables.accounts, {
             account_number,
             user_id: id,

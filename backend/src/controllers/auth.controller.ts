@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import env from "../config/env";
-import { updateRecord } from "../db/models/records";
+import { getRecords, updateRecord } from "../db/models/records";
 import { generateAccessToken, generateRefreshToken } from "../utils/jwtUtils";
 import { AuthRequest } from "../types/authRequest.type";
 import { ForbiddenError, UnauthorizedError } from "../utils/errors";
@@ -9,6 +9,7 @@ import { ApiResponse } from "../utils/ApiResponse";
 import { tables } from "../db/tables";
 import { getUser } from "../services/user/getUser.service";
 import { getEmployee } from "../services/employee/getEmployee.service";
+import { query } from "../config/db";
 
 // Refresh Token API
 export const refreshToken = async (
@@ -128,6 +129,44 @@ export const logout = async (
         ApiResponse.send(res, 200, "Logout successful");
 
         return;
+    } catch (error) {
+        next(error);
+    }
+};
+
+// Get User API
+export const getUserController = async (
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const userId = req.user?.id;
+        const role = req.user?.role;
+
+        if (!userId || !role) {
+            throw new UnauthorizedError("Unauthorized: No user found");
+        }
+
+        const users = await getRecords(tables.employees, {
+            where: [
+                {
+                    column: "id",
+                    operator: "=",
+                    value: userId,
+                },
+            ],
+        });
+
+        if (users.length === 0) {
+            throw new ForbiddenError("User not found");
+        }
+
+        const user = users[0];
+
+        ApiResponse.send(res, 200, "User fetched successfully", {
+            user,
+        });
     } catch (error) {
         next(error);
     }

@@ -1,3 +1,8 @@
+import {
+    commitTransaction,
+    rollbackTransaction,
+    startTransaction,
+} from "../../config/db";
 import { createRecord } from "../../db/models/records";
 import { tables } from "../../db/tables";
 import { BranchSchema } from "../../schemas/branch.schema";
@@ -13,6 +18,7 @@ export async function createBranch(
     pin_code: string,
     phone: string
 ) {
+    const client = await startTransaction();
     try {
         const { latitude, longitude } = await getLatLongByPincode(pin_code);
 
@@ -33,7 +39,9 @@ export async function createBranch(
         }
 
         await createRecord(tables.branches, result.data);
+        await commitTransaction(client);
     } catch (error) {
+        await rollbackTransaction(client);
         throw error;
     }
 }

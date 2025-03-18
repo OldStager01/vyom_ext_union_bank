@@ -21,7 +21,6 @@ export const employeeSignUpController = async (
             phone,
             password,
             roles,
-            department,
             spoken_languages,
         } = req.body;
         if (
@@ -32,7 +31,6 @@ export const employeeSignUpController = async (
             !password ||
             !roles ||
             roles.length === 0 ||
-            !department ||
             !Array.isArray(spoken_languages) ||
             spoken_languages.length === 0
         )
@@ -45,7 +43,6 @@ export const employeeSignUpController = async (
             phone,
             password,
             roles,
-            department,
             spoken_languages
         );
 
@@ -60,55 +57,68 @@ export const employeeLogInController = async (
     res: Response,
     next: NextFunction
 ) => {
-    const { email, password } = req.body;
+    try {
+        const { email, password } = req.body;
 
-    const employee = await getRecords<EmployeeType>(tables.employees, {
-        where: [
-            {
-                column: "email",
-                operator: "=",
-                value: email,
-            },
-        ],
-    });
-
-    if (employee.length === 0) throw new UnauthorizedError("User not found");
-    const isMatch = await bcrypt.compare(
-        password,
-        employee[0]?.password as string
-    );
-    if (!isMatch)
-        throw new UnauthorizedError(
-            "Unauthorised: Incorrect email or password"
-        );
-
-    const accessToken = generateAccessToken(
-        employee[0]?.id as UUIDTypes,
-        "employee"
-    );
-    const refreshToken = generateRefreshToken(
-        employee[0]?.id as UUIDTypes,
-        "employee"
-    );
-
-    await updateRecord<EmployeeType>(
-        tables.employees,
-        {
-            refresh_token: refreshToken,
-        },
-        {
+        const employee = await getRecords<EmployeeType>(tables.employees, {
             where: [
                 {
-                    column: "id",
+                    column: "email",
                     operator: "=",
-                    value: employee[0]?.id as UUIDTypes,
+                    value: email,
                 },
             ],
-        }
-    );
-    res.setHeader("x-access-token", accessToken);
-    res.setHeader("x-refresh-token", refreshToken);
-    ApiResponse.send(res, 200, "Logged In", {
-        user: employee[0],
-    });
+        });
+
+        if (employee.length === 0)
+            throw new UnauthorizedError("User not found");
+        const isMatch = await bcrypt.compare(
+            password,
+            employee[0]?.password as string
+        );
+        if (!isMatch)
+            throw new UnauthorizedError(
+                "Unauthorised: Incorrect email or password"
+            );
+
+        const accessToken = generateAccessToken(
+            employee[0]?.id as UUIDTypes,
+            "employee"
+        );
+        const refreshToken = generateRefreshToken(
+            employee[0]?.id as UUIDTypes,
+            "employee"
+        );
+
+        await updateRecord<EmployeeType>(
+            tables.employees,
+            {
+                refresh_token: refreshToken,
+            },
+            {
+                where: [
+                    {
+                        column: "id",
+                        operator: "=",
+                        value: employee[0]?.id as UUIDTypes,
+                    },
+                ],
+            }
+        );
+        res.setHeader("x-access-token", accessToken);
+        res.setHeader("x-refresh-token", refreshToken);
+
+        res.cookie("se", accessToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            maxAge: 1000 * 60 * 60 * 24 * 30, // 30 days
+        });
+
+        ApiResponse.send(res, 200, "Logged In", {
+            accessToken,
+            user: employee[0],
+        });
+    } catch (error) {
+        next(error);
+    }
 };
