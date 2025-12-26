@@ -14,15 +14,17 @@ const authMiddleware = async (
 ) => {
     try {
         let authHeader = req.headers.authorization;
-        if (!authHeader) {
-            authHeader = req.cookies.accessToken;
-        }
+        let accessToken;
         console.log("authHeader", authHeader);
         if (!authHeader || !authHeader.startsWith("Bearer ")) {
             throw new UnauthorizedError("Unauthorized: No access token found");
         }
 
-        const accessToken = authHeader.split(" ")[1];
+        accessToken = authHeader.split(" ")[1];
+
+        if (!accessToken) {
+            accessToken = req.cookies.accessToken;
+        }
 
         try {
             const decoded = jwt.verify(

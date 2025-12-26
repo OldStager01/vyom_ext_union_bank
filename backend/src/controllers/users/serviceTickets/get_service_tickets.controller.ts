@@ -45,9 +45,12 @@ export const getServiceTicketsController = async (
                 query_text: ticket?.query_text,
                 query_type: ticket?.query_type,
             })) || [];
-        ApiResponse.send(res, 200, "Service tickets fetched successfully", {
-            tickets,
-        });
+        ApiResponse.send(
+            res,
+            200,
+            "Service tickets fetched successfully",
+            tickets
+        );
     } catch (error) {
         next(error);
     }

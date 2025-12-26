@@ -108,7 +108,7 @@ export const employeeLogInController = async (
         res.setHeader("x-access-token", accessToken);
         res.setHeader("x-refresh-token", refreshToken);
 
-        res.cookie("se", accessToken, {
+        res.cookie("accessToken", accessToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
             maxAge: 1000 * 60 * 60 * 24 * 30, // 30 days
